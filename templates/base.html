@@ -1,27 +1,58 @@
-<!-- templates/base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Website{% endblock %}</title>
-    <!-- Add your CSS stylesheets and other head content here -->
-</head>
-<body>
-    <header>
-        <h2>ResidentXP</h2>
-    </header>
+    <title>{% block title %}ResidentXP{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .container {
+            min-height: calc(100vh - 144px); /* Adjust the height as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-    <main>
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"] {
+            background-color: #1a202c; /* Dark background color */
+            color: #f7fafc; /* Text color */
+            border-color: #4a5568; /* Border color */
+            padding: 0.5rem 1rem; /* Adjust padding as needed */
+            border-radius: 0.25rem; /* Adjust border radius as needed */
+            width: 100%; /* Make inputs full width */
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+        /* Change background color on focus */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="tel"]:focus {
+            background-color: #2d3748; /* Darker background color on focus */
+            outline: none; /* Remove default focus outline */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <header class="bg-indigo-800 text-white py-4 flex justify-between items-center px-8">
+        <h2 class="text-2xl font-bold">ResidentXP</h2>
+        <!-- Add your navigation links here -->
+    </header>
+    <main class="container">
         {% block content %}
         <!-- This block will be overridden by child templates -->
+        <div class="max-w-4xl mx-auto px-8 py-16">
+            <h1 class="text-4xl font-bold mb-8">Welcome to ResidentXP</h1>
+            <p class="text-lg mb-4">Find the perfect student accommodation with us.</p>
+            <!-- Add your content here -->
+        </div>
         {% endblock %}
     </main>
-
-    <footer>
-        <!-- Your footer content goes here -->
+    <footer class="bg-indigo-800 text-white py-4 text-center">
+        <p>&copy; {% now "Y" %} ResidentXP. All rights reserved.</p>
     </footer>
-
-    <!-- Add your JavaScript files and other scripts here -->
 </body>
 </html>

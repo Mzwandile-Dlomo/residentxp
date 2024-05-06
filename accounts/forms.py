@@ -22,6 +22,17 @@ from django import forms
 from .models import Student
 
 class StudentApplicationForm(forms.ModelForm):
+
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+    )
+     
+    # Add fields for course and gender
+    course = forms.CharField(max_length=100)
+    gender = forms.ChoiceField(choices=GENDER_CHOICES)
+
+
     class Meta:
         model = Student
-        fields = ['full_name', 'email', 'phone_number', 'student_number', 'gender']
+        fields = ['full_name', 'email', 'phone_number', 'student_number', 'course', 'gender']
