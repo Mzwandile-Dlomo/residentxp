@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h2>Accommodation Application</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <label for="id_student_number">Student Number:</label>
+    <input type="text" id="id_student_number" name="student_number"><br>
+    <label for="id_phone_number">Phone Number:</label>
+    <input type="text" id="id_phone_number" name="phone_number"><br>
+    <label for="id_course">Course:</label>
+    <input type="text" id="id_course" name="course"><br>
+    <button type="submit">Submit Application</button>
+  </form>
+
+
+
+  <!-- <h2>User Registration</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+  </form> -->
+{% endblock %}

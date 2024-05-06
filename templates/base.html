@@ -1,0 +1,27 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <!-- Add your CSS stylesheets and other head content here -->
+</head>
+<body>
+    <header>
+        <h2>ResidentXP</h2>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- This block will be overridden by child templates -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <!-- Your footer content goes here -->
+    </footer>
+
+    <!-- Add your JavaScript files and other scripts here -->
+</body>
+</html>
