@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4 bg-indigo-500 text-white px-4 py-2 rounded">Accommodation Application</h2>
+    <form method="post" action="{% url 'accounts:application_confirmation' %}" class="max-w-md mx-auto">
+        {% csrf_token %}
+        {% for field in form %}
+            {% if field.name == "full_name" %}
+                <div class="mb-2 flex items-center">
+                    <label for="{{ field.id_for_label }}" class="mr-2">{{ field.label_tag }}</label>
+                    <div class="flex">
+                        {{ field }}
+                        {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
+                    </div>
+                </div>
+            {% elif field.name == "gender" %}
+                <div class="mb-2 flex items-center">
+                    <label for="{{ field.id_for_label }}" class="mr-2">{{ field.label_tag }}</label>
+                    <div class="">
+                        {{ field }}
+                        {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="mb-2 flex items-center">
+                    <label for="{{ field.id_for_label }}" class="mr-2">{{ field.label_tag }}</label>
+                    <div class="flex">
+                        {{ field }}
+                        {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <h1>Complete Application</h1>
+        {{ form.as_p }}
+        <h2>Additional Details</h2>
+        {{ additional_form.as_p }}
+        <button type="submit" class="block w-full px-4 py-2 mt-4 text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Submit Application</button>
+    </form>
+</div>
+{% endblock %}
