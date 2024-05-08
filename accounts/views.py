@@ -3,49 +3,34 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Student
 from .forms import StudentApplicationForm, AdditionalDetailsForm
+from django.contrib.auth.decorators import login_required 
 
-# def apply_for_admission(request):
-#     if request.method == 'POST':
-#         form = StudentApplicationForm(request.POST)
-#         if form.is_valid():
-#             # Check if student with the same student number already exists
-#             student_number = form.cleaned_data['student_number']
-#             existing_student = Student.objects.filter(student_number=student_number).exists()
-#             if existing_student:
-#                 messages.error(request, 'Student with this student number already exists.')
-#             else:
-#                 student = form.save(commit=False)
-#                 student.application_status = 'pending'
-#                 student.save()
-#                 messages.success(request, 'Your application has been submitted successfully.')
-#                 return redirect('application_confirmation')
-#     else:
-#         form = StudentApplicationForm()
-#     return render(request, 'accounts/registration.html', {'form': form})
 
-def apply_for_admission(request):
+def apply_view(request):
     if request.method == 'POST':
         form = StudentApplicationForm(request.POST)
         if form.is_valid():
-            # Check if student with the same student number already exists
-            student_number = form.cleaned_data['student_number']
-            existing_student = Student.objects.filter(student_number=student_number).exists()
-            print("existing_student:", existing_student)
-            if existing_student:
-                messages.error(request, 'Student with this student number already exists. Please wait for the application process to complete.')
-                return redirect('application_exists')
-            else:
+            try:
                 student = form.save(commit=False)
                 student.application_status = 'pending'
                 student.save()
                 messages.success(request, 'Your application has been submitted successfully.')
-                return redirect('application_confirmation')
+                return redirect('accounts:application_confirmation')
+            except Exception as e:
+                messages.error(request, f"An error occurred: {e}")
+                return redirect('accounts:application_error')
     else:
         form = StudentApplicationForm()
     return render(request, 'accounts/registration.html', {'form': form})
 
-
+# @login_required
+# def complete_application(request, student_id, confirmation_token)
 def complete_application(request, student_id):
+    # try:
+    #     student = Student.objects.get(confirmation_token=confirmation_token)
+    # except Student.DoesNotExist:
+    #     return redirect('invalid_confirmation')  # Redirect to error page
+
     student = get_object_or_404(Student, id=student_id)
 
     if request.method == 'POST':
@@ -77,6 +62,8 @@ def application_confirmation(request):
         return render(request, 'accounts/application_confirmation.html')
     
 
-
-def application_exists(request):
+def duplicate_application(request):
     return render(request, 'accounts/application_exists.html')
+
+def application_error(request):
+    return render(request, 'accounts/application_error.html')

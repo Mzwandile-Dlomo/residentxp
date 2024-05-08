@@ -4,8 +4,10 @@ from . import views
 app_name = 'accounts'
 
 urlpatterns = [
-    path('', views.apply_for_admission, name='register'),
+    path('', views.apply_view, name='application'),
     path('application_confirmation/', views.application_confirmation, name='application_confirmation'),
-    path('application_exists/', views.application_exists, name='application_exists'),
-    path('complete/<int:student_id>/', views.complete_application, name='complete_application'),
+    path('duplicate_application/', views.duplicate_application, name='duplicate_application'),
+    path('application_error/', views.application_error, name='application_error'),
+    path('complete_application/<int:student_id>/', views.complete_application, name='complete_application'),
 ]
+# application_error
