@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4 bg-indigo-500 text-white px-4 py-2 mt-4 rounded">Update Student Profile</h2>
+
+    <!-- Student Update Form -->
+    <form method="post" class="max-w-md mx-auto" action="{{ edit_url }}">
+        {% csrf_token %}
+        {% for field in student_form %}
+        <div class="mb-4">
+            <label for="{{ field.id_for_label }}" class="block text-gray-400 font-bold mb-2 flex justify-center">{{ field.label }}</label>
+            <div class="flex justify-center text">
+                {{ field }}
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full px-4 py-2 mb-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update Profile</button>
+    </form>
+
+    <!-- Rental Agreement Form -->
+    <h2 class="text-2xl font-bold mb-4 bg-indigo-500 text-white px-4 py-2 mt-4 rounded">Sign Rental Agreement</h2>
+    <form method="post" class="max-w-md mx-auto">
+        {% csrf_token %}
+        {% for field in rental_agreement_form %}
+        <div class="mb-4">
+            <label for="{{ field.id_for_label }}" class="block text-gray-400 font-bold mb-2 flex justify-center">{{ field.label }}</label>
+            <div class="flex justify-center text">
+                {{ field }}
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full px-4 py-2 mb-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Sign Rental Agreement</button>
+    </form>
+
+    <!-- Bursary Form -->
+    <h2 class="text-2xl font-bold mb-4 bg-indigo-500 text-white px-4 py-2 mt-4 rounded">Update Bursary Information</h2>
+    <form method="post" class="max-w-md mx-auto">
+        {% csrf_token %}
+        {% for field in bursary_form %}
+        <div class="mb-4">
+            <label for="{{ field.id_for_label }}" class="block text-gray-400 font-bold mb-2 flex justify-center">{{ field.label }}</label>
+            <div class="flex justify-center text">
+                {{ field }}
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full px-4 py-2 mb-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update Bursary Information</button>
+    </form>
+</div>
+
+<style>
+    /* Style to center text in input fields */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto">
+  <h2 class="text-2xl font-bold mb-4 bg-indigo-500 text-white px-4 py-2 mt-4 rounded">Update Student Profile</h2>
+  <form method="post" class="max-w-md mx-auto" action="{{ edit_url }}">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-4">
+        <label for="{{ field.id_for_label }}" class="block text-gray-400 font-bold mb-2 flex justify-center">{{ field.label }}</label>
+        <div class="flex justify-center text">
+          {{ field }}
+        </div>
+      </div>
+    {% endfor %}
+    <button type="submit" class="w-full px-4 py-2 mb-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update</button>
+  </form>
+</div>
+<style>
+  /* Style to center text in input fields */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"] {
+    text-align: center;
+  }
+</style>
+{% endblock %} -->

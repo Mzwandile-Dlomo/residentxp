@@ -6,33 +6,15 @@
   <form method="post" class="max-w-md mx-auto">
     {% csrf_token %}
     {% for field in form %}
-        {% if field.name == "full_name" %}
-            <div class="mb-2 flex items-center">
-                <label for="{{ field.id_for_label }}" class="mr-2">{{ field.label_tag }}</label>
-                <div class="flex">
-                  {{ field }}
-                  {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
-                </div>
-            </div>
-        {% elif field.name == "gender" %}
-          <div class="mb-2 flex items-center">
-            <label for="{{ field.id_for_label }}" class="mr-2">{{ field.label_tag }}</label>
-            <div class="">
-                {{ field }}
-                {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
-            </div>
+        <div class="mb-4">
+          <label for="{{ field.id_for_label }}" class="block text-gray-700 font-bold mb-2">{{ field.label_tag }}</label>
+          <div class="flex">
+              {{ field }}
+              {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
+          </div>
         </div>
-        {% else %}
-            <div class="mb-2 flex items-center">
-                <label for="{{ field.id_for_label }}" class="mr-2">{{ field.label_tag }}</label>
-                <div class="flex">
-                    {{ field }}
-                    {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
-                </div>
-            </div>
-        {% endif %}
     {% endfor %}
-    <button type="submit" class="block w-full px-4 py-2 mt-4 text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Submit Application</button>
+    <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Submit Application</button>
   </form>
 </div>
 {% endblock %}

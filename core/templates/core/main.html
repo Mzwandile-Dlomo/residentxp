@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accommodation Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <nav class="bg-indigo-500 text-white py-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Accommodation Portal</h1>
+            <div class="flex items-center">
+                <span class="mr-4">Welcome, John Doe</span>
+                <img src="https://via.placeholder.com/32" alt="Profile Picture" class="rounded-full">
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2">
+                <a href="#" class="block bg-white p-4 rounded shadow mb-4 hover:bg-gray-100">
+                    <h2 class="text-2xl font-bold">Today's Calendar</h2>
+                </a>
+
+                <a href="#" class="block bg-white p-4 rounded shadow mb-4 hover:bg-gray-100">
+                    <h2 class="text-2xl font-bold">Fill a Complaint</h2>
+                </a>
+
+                <a href="#" class="block bg-white p-4 rounded shadow mb-4 hover:bg-gray-100">
+                    <h2 class="text-2xl font-bold">Resident Activities</h2>
+                </a>
+            </div>
+
+            <div>
+                <a href="#" class="block bg-white p-4 rounded shadow mb-4 hover:bg-gray-100">
+                    <h2 class="text-2xl font-bold">Request Room Inspection</h2>
+                </a>
+
+                <a href="#" class="block bg-white p-4 rounded shadow mb-4 hover:bg-gray-100">
+                    <h2 class="text-2xl font-bold">Share an Idea</h2>
+                </a>
+
+                <a href="{% url 'accounts:profile' %}" class="block bg-white p-4 rounded shadow mb-4 hover:bg-gray-100">
+                    <h2 class="text-2xl font-bold">Account</h2>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto text-center">
+            &copy; 2023 Accommodation Portal
+        </div>
+    </footer>
+</body>
+</html>
