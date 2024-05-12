@@ -1,9 +1,44 @@
 from django.contrib import admin
-from .models import Student, User, StudentLeader, Admin, RentalAgreement, Bursary
+from django.contrib.auth.admin import UserAdmin
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
+from .models import Payment, CustomUser, RentalAgreement, Bursary
 
-# Register your models here.
-admin.site.register(Student)
-admin.site.register(StudentLeader)
-admin.site.register(Admin)
+class CustomUserAdmin(UserAdmin):
+    """Define admin model for custom User model with additional fields."""
+
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'identification', 'gender')}),
+        (_('User Type'), {'fields': ('user_type',)}),
+        (_('Student Details'), {'fields': ('student_number', 'is_accepted', 'application_status', 'date_of_birth',
+                                           'course', 'room_type', 'next_of_kin_full_name', 'next_of_kin_address',
+                                           'next_of_kin_contact', 'next_of_kin_identification', 'bursary')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'room_type', 'password1', 'password2'),
+        }),
+    )
+
+
+    list_display = ('email', 'first_name', 'last_name', 'user_type', 'is_staff')
+    list_filter = ('user_type', 'is_staff', 'is_superuser')
+    search_fields = ('email', 'first_name', 'last_name', 'student_number')
+    ordering = ('email',)
+
+    def get_fieldsets(self, request, obj=None):
+        if obj:  # editing an existing object
+            return self.fieldsets
+        else:  # adding a new object
+            return self.add_fieldsets
+
+
+admin.site.register(get_user_model(), CustomUserAdmin)
+admin.site.register(Payment)
 admin.site.register(Bursary)
 admin.site.register(RentalAgreement)

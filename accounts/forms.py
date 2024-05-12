@@ -1,78 +1,174 @@
 # forms.py
 from django import forms
-from .models import Student, StudentLeader, User, RentalAgreement, Bursary, Payment
+from .models import CustomUser, RentalAgreement, Bursary, Payment
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.contrib.auth.forms import AuthenticationForm
 
 
-
-class UserForm(forms.ModelForm):
-  class Meta:
-    model = User
-    fields = ['full_name', 'phone_number', 'identification', 'gender', 'email']
-
-
-class StudentForm(forms.ModelForm):
-  class Meta:
-    model = Student
-    fields = ['full_name', 'phone_number', 'identification', 'gender', 'email', 'student_number', 
-              'is_accepted', 'application_status', 'date_of_birth', 'course', 
-              'room_type', 'next_of_kin_full_name', 'next_of_kin_address', 'next_of_kin_contact', 
-              'next_of_kin_identification', 'bursary']
-
-
-class StudentLeaderForm(StudentForm):
-  class Meta(StudentForm.Meta):
-    model = StudentLeader
-    fields = StudentForm.Meta.fields + ['is_student_leader']  # Add the specific field for StudentLeader
-
-  def clean_is_student(self):
-    # Validate that the user is indeed a student (is_student should be True)
-    cleaned_data = super().clean()
-    is_student = cleaned_data.get('is_student')
-    if not is_student:
-      raise ValidationError('User must be a student to be a Student Leader.')
-    return cleaned_data
-  
-
-
-class StudentUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Student
-        fields = ['full_name', 'email', 'phone_number', 'student_number', 'gender', 'identification']
+class LoginForm(AuthenticationForm):
+    username = forms.EmailField(label='Email Address')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields.update({
-            'date_of_birth': forms.DateField(required=False),
-            'course': forms.CharField(max_length=100, required=False),
-            'sponsor_details': forms.CharField(widget=forms.Textarea, required=False),
-            'room_type': forms.CharField(max_length=50, required=False),
-            'next_of_kin_full_name': forms.CharField(max_length=100, required=False),
-            'next_of_kin_address': forms.CharField(max_length=200, required=False),
-            'next_of_kin_contact': forms.CharField(max_length=20, required=False),
-            'next_of_kin_identification': forms.CharField(max_length=20, required=False),
-        })
+        self.fields.pop('password')
 
 
+class RegistrationForm(forms.ModelForm):
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
 
-class RentalAgreementForm(forms.ModelForm):
     class Meta:
-        model = RentalAgreement
-        fields = ['landlord', 'rent_amount', 'payment_frequency', 'start_date', 'end_date']
+        model = CustomUser
+        fields = ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'room_type')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        if password1 != password2:
+            raise ValidationError("Passwords do not match. Please enter the same password in both fields.")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+    
+
+class StudentForm(forms.ModelForm):
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            'email', 'identification', 'gender', 'student_number', 
+            'is_accepted', 'application_status', 'date_of_birth', 'course', 
+            'room_type', 'next_of_kin_full_name', 'next_of_kin_address', 
+            'next_of_kin_contact', 'next_of_kin_identification', 'bursary'
+        ]
+
+
+
+
+
+
+
+
+# class SignInForm(forms.ModelForm):
+#     class Meta:
+#         model = EndUser  # Assuming EndUser is your custom user model
+#         fields = ['email', 'password']  # Fields to include in the form
+
+#     password = forms.CharField(widget=forms.PasswordInput)  # Override password field to use PasswordInput widget
+
+
+# class EndUserForm(forms.ModelForm):
+#     class Meta:
+#         model = EndUser
+#         fields = '__all__'
+#         # fields = ['first_name', 'last_name', 'email', 'phone_number', 'identification', 'gender']
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         # You can add any additional customization for form fields here
+
+
+# class StudentForm(forms.ModelForm):
+#   class Meta:
+#     model = Student
+#     fields = '__all__'
+#     # fields = ['full_name', 'phone_number', 'identification', 'gender', 'email', 'student_number', 
+#     #           'is_accepted', 'application_status', 'date_of_birth', 'course', 
+#     #           'room_type', 'next_of_kin_full_name', 'next_of_kin_address', 'next_of_kin_contact', 
+#     #           'next_of_kin_identification', 'bursary']
+
+
+# # class StudentLeaderForm(forms.ModelForm):
+# #   class Meta():
+# #     model = StudentLeader
+# #     fields = StudentForm.Meta.fields + ['is_student_leader']  # Add the specific field for StudentLeader
+
+# #   def clean_is_student(self):
+# #     # Validate that the user is indeed a student (is_student should be True)
+# #     cleaned_data = super().clean()
+# #     is_student = cleaned_data.get('is_student')
+# #     if not is_student:
+# #       raise ValidationError('User must be a student to be a Student Leader.')
+# #     return cleaned_data
+  
+
+
+# class StudentUpdateForm(forms.ModelForm):
+#     class Meta:
+#         model = Student
+#         fields = ['date_of_birth', 'course', 'room_type', 'next_of_kin_full_name', 'next_of_kin_address', 'next_of_kin_contact', 'next_of_kin_identification']
+
+# class RentalAgreementForm(forms.ModelForm):
+#     class Meta:
+#         model = RentalAgreement
+#         fields = '__all__'
+#         # fields = ['landlord', 'rent_amount', 'payment_frequency', 'start_date', 'end_date']
 
      
-class BursaryForm(forms.ModelForm):
-    class Meta:
-        model = Bursary
-        fields = ['name', 'contact_information', 'reference_number']
+# class BursaryForm(forms.ModelForm):
+#     class Meta:
+#         model = Bursary
+#         fields = '__all__'
+#         # fields = ['name', 'contact_information', 'reference_number']
 
 
-class PaymentForm(forms.ModelForm):
-    class Meta:
-        model = Payment
-        fields = ['rental_agreement', 'amount', 'payment_date', 'paid_by_bursary']
+# class PaymentForm(forms.ModelForm):
+#     class Meta:
+#         model = Payment
+#         fields = '__all__'
+#         # fields = ['rental_agreement', 'amount', 'payment_date', 'paid_by_bursary']
+
+
+
+
+
+
+
+# # class UserForm(forms.ModelForm):
+# #   class Meta:
+# #     model = EndUser
+# #     fields = ['full_name', 'phone_number', 'identification', 'gender', 'email']
+
+
+# class UserForm(forms.ModelForm):
+#     class Meta:
+#         model = EndUser
+#         fields = ['username', 'email', 'password']
+
+
+
+
+
+
+# class StudentUpdateForm(forms.ModelForm):
+#     class Meta:
+#         model = Student
+#         fields = ['full_name', 'email', 'phone_number', 'student_number', 'gender', 'identification']
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.fields.update({
+#             'date_of_birth': forms.DateField(required=False),
+#             'course': forms.CharField(max_length=100, required=False),
+#             'sponsor_details': forms.CharField(widget=forms.Textarea, required=False),
+#             'room_type': forms.CharField(max_length=50, required=False),
+#             'next_of_kin_full_name': forms.CharField(max_length=100, required=False),
+#             'next_of_kin_address': forms.CharField(max_length=200, required=False),
+#             'next_of_kin_contact': forms.CharField(max_length=20, required=False),
+#             'next_of_kin_identification': forms.CharField(max_length=20, required=False),
+#         })
+
+
 
 # class StudentApplicationForm(forms.ModelForm):
 

@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .container {
-            min-height: calc(100vh - 144px); /* Adjust the height as needed */
+            min-height: calc(100vh - 144px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -46,10 +46,24 @@
     </style>
 </head>
 <body class="bg-gray-900 text-white">
-    <header class="bg-indigo-800 text-white py-4 flex justify-between items-center px-8">
-        <h2 class="text-2xl font-bold">ResidentXP</h2>
-        <!-- Add your navigation links here -->
-    </header>
+  <header class="bg-indigo-800 text-white py-4 flex justify-between items-center px-8">
+    <div class="logo">
+      <a href="{% url 'core:home' %}">
+        <img src="https://via.placeholder.com/32" alt="ResidentXP" class="h-8">
+      </a>
+    </div>
+    <div class="welcome">
+      {% if user.is_authenticated %}
+        <p style="text-transform: uppercase;">Welcome, {{ user.username }}</p>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="text-white hover:text-indigo-200">Login</a>
+      {% endif %}
+    </div>
+    <ul class="nav-links flex space-x-4">
+      <li><a href="{% url 'accounts:account' %}" class="hover:text-indigo-200">Account</a></li>
+      <li><a href="{% url 'accounts:logout' %}" class="hover:text-indigo-200">Logout</a></li>
+    </ul>
+  </header>
     <main class="container">
         {% block content %}
         <!-- This block will be overridden by child templates -->
