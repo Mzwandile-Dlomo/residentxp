@@ -17,7 +17,7 @@ class RegistrationForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'room_type')
+        fields = ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'room')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -38,8 +38,8 @@ class StudentForm(forms.ModelForm):
         model = CustomUser
         fields = [
             'email', 'identification', 'gender', 'student_number',
-            'is_accepted', 'date_of_birth', 'course',
-            'room_type', 'next_of_kin_full_name', 'next_of_kin_address',
+            'is_accepted', 'date_of_birth', 'course', 'room',
+            'next_of_kin_full_name', 'next_of_kin_address',
             'next_of_kin_contact', 'next_of_kin_identification', 'bursary'
         ]
 
