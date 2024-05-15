@@ -56,9 +56,11 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
+            print(email, password)
             user = authenticate(request, email=email, password=password)
+            print(user)
             if user is not None:
                 login(request, user)
                 # Redirect to a success page
