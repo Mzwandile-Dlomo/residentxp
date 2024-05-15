@@ -12,6 +12,34 @@ from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.utils.translation import gettext_lazy as _
 
+
+
+class Room(models.Model):
+    ROOM_TYPE_CHOICES = (
+        ('single', 'Single Room'),
+        ('single_ensuite', 'Single Ensuite'),
+        ('sharing', 'Sharing Room'),
+        ('sharing_ensuite', 'Sharing Ensuite'),
+    )
+
+    room_number = models.CharField(max_length=10, unique=True)
+    room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES)
+    capacity = models.PositiveIntegerField(default=1)
+    occupants = models.ManyToManyField('CustomUser', related_name='room', blank=True)
+
+    def __str__(self):
+        return f"Room {self.room_number} ({self.get_room_type_display()})"
+
+    @property
+    def is_full(self):
+        return self.occupants.count() >= self.capacity
+
+    @property
+    def vacancies(self):
+        return self.capacity - self.occupants.count()
+
+
+
 class CustomUserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
 
@@ -53,6 +81,7 @@ class CustomUser(AbstractUser):
     )
 
     username = None
+    is_accepted = models.BooleanField(default=False)
     email = models.EmailField(unique=True, verbose_name='Email Address')
     user_type = models.CharField(max_length=20, choices=(
         ('student', 'Student'),
@@ -70,11 +99,9 @@ class CustomUser(AbstractUser):
 
     # Student and Student Leader fields
     student_number = models.CharField(max_length=20, blank=True, null=True)
-    is_accepted = models.BooleanField(default=False)
-    application_status = models.CharField(max_length=20, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     course = models.CharField(max_length=100, blank=True, null=True)
-    room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES, blank=True, null=True)
+    room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True, related_name='occupants')
     next_of_kin_full_name = models.CharField(max_length=100, blank=True, null=True)
     next_of_kin_address = models.CharField(max_length=200, blank=True, null=True)
     next_of_kin_contact = models.CharField(max_length=20, blank=True, null=True)
@@ -119,10 +146,6 @@ class Bursary(models.Model):
 
     def __str__(self):
         return self.name
-
-
-
-
 
 
 

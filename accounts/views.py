@@ -63,10 +63,13 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            # Redirect to a success page
-            return redirect('core:home')
+            email = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
+                login(request, user)
+                # Redirect to a success page
+                return redirect('core:home')
     else:
         form = LoginForm()
 
@@ -79,22 +82,6 @@ def logout_view(request):
     # Redirect to the home page or any other desired page
     return redirect('core:home')
 
-
-
-
-
-
-
-
-
-# Keep user authentication logic separate from views for better organization
-# def authenticate_user(request, username, password):
-#     user = authenticate(username=username, password=password)
-#     if user is not None:
-#         login(request, user)
-#         return True
-#     else:
-#         return False
 
 
 @login_required

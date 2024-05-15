@@ -7,13 +7,9 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.forms import AuthenticationForm
 
 
-class LoginForm(AuthenticationForm):
-    username = forms.EmailField(label='Email Address')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields.pop('password')
-
+class LoginForm(forms.Form):
+    email = forms.EmailField(label='Email Address')
+    password = forms.CharField(widget=forms.PasswordInput)
 
 class RegistrationForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
@@ -23,13 +19,12 @@ class RegistrationForm(forms.ModelForm):
         model = CustomUser
         fields = ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'room_type')
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-
-        if password1 != password2:
-            raise ValidationError("Passwords do not match. Please enter the same password in both fields.")
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        return password2
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -37,21 +32,16 @@ class RegistrationForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-    
 
 class StudentForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
-
     class Meta:
         model = CustomUser
         fields = [
-            'email', 'identification', 'gender', 'student_number', 
-            'is_accepted', 'application_status', 'date_of_birth', 'course', 
-            'room_type', 'next_of_kin_full_name', 'next_of_kin_address', 
+            'email', 'identification', 'gender', 'student_number',
+            'is_accepted', 'date_of_birth', 'course',
+            'room_type', 'next_of_kin_full_name', 'next_of_kin_address',
             'next_of_kin_contact', 'next_of_kin_identification', 'bursary'
         ]
-
 
 
 
