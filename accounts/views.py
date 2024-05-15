@@ -4,18 +4,12 @@ from django.contrib import messages
 from .models import CustomUser
 from django.contrib.auth.decorators import login_required 
 from django.urls import reverse
-from django.contrib.auth import authenticate, login
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
-from django.http import HttpResponse
 from django.conf import settings
-from django.contrib.auth import logout, get_user_model
+from django.contrib.auth import logout, get_user_model, authenticate, login
 from django.db import IntegrityError
-from .forms import RegistrationForm, LoginForm
-
 from django.contrib import messages
-from django.contrib.auth import get_user_model
-from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegistrationForm, LoginForm, StudentForm
 
 
@@ -50,7 +44,8 @@ def registration_view(request):
             # Handle successful registration (e.g., redirect, confirmation message)
             redirect('core:home')
         else:
-            context = {'form': form}
+            context = {'form': form}from django.shortcuts import render, redirect, get_object_or_404
+
             return render(request, 'accounts/registration_page.html', context)
     else:
         form = RegistrationForm()
@@ -136,7 +131,20 @@ def profile_view(request):
         return render(request, 'accounts/account_page.html', context)
     
 
+def rental_agreement(request, student_id):
+    student = get_object_or_404(CustomUser, id=student_id)
 
+    if request.method == 'POST':
+        form = RentalAgreementForm(request.POST)
+        if form.is_valid():
+            rental_agreement = form.save(commit=False)
+            rental_agreement.student = student
+            rental_agreement.save()
+            return redirect('rental_agreement_detail', rental_agreement_id=rental_agreement.id)
+    else:
+        form = RentalAgreementForm()
+
+    return render(request, 'rental_agreement.html', {'form': form, 'student': student})
 
 # #     else:
 # #         # User is not authenticated, handle accordingly

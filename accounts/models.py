@@ -1,43 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.contrib.auth.models import AbstractUser, Group
-from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.utils import timezone
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import AbstractBaseUser, Group, Permission, PermissionsMixin, AbstractUser, BaseUserManager, BaseUserManager
 from django.utils.translation import gettext_lazy as _
-
-
-
-class Room(models.Model):
-    ROOM_TYPE_CHOICES = (
-        ('single', 'Single Room'),
-        ('single_ensuite', 'Single Ensuite'),
-        ('sharing', 'Sharing Room'),
-        ('sharing_ensuite', 'Sharing Ensuite'),
-    )
-
-    room_number = models.CharField(max_length=10, unique=True)
-    room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES)
-    capacity = models.PositiveIntegerField(default=1)
-    occupants = models.ManyToManyField('CustomUser', related_name='room', blank=True)
-
-    def __str__(self):
-        return f"Room {self.room_number} ({self.get_room_type_display()})"
-
-    @property
-    def is_full(self):
-        return self.occupants.count() >= self.capacity
-
-    @property
-    def vacancies(self):
-        return self.capacity - self.occupants.count()
-
 
 
 class CustomUserManager(BaseUserManager):
@@ -101,7 +67,6 @@ class CustomUser(AbstractUser):
     student_number = models.CharField(max_length=20, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     course = models.CharField(max_length=100, blank=True, null=True)
-    room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True, related_name='occupants')
     next_of_kin_full_name = models.CharField(max_length=100, blank=True, null=True)
     next_of_kin_address = models.CharField(max_length=200, blank=True, null=True)
     next_of_kin_contact = models.CharField(max_length=20, blank=True, null=True)

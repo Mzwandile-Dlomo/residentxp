@@ -17,7 +17,7 @@ class RegistrationForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'room')
+        fields = ('first_name', 'last_name', 'email', 'gender', 'identification', 'course')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -38,11 +38,44 @@ class StudentForm(forms.ModelForm):
         model = CustomUser
         fields = [
             'email', 'identification', 'gender', 'student_number',
-            'is_accepted', 'date_of_birth', 'course', 'room',
+            'is_accepted', 'date_of_birth', 'course',
             'next_of_kin_full_name', 'next_of_kin_address',
             'next_of_kin_contact', 'next_of_kin_identification', 'bursary'
         ]
 
+
+class StudentProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
+        exclude = []
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date_of_birth'].widget.attrs.update({'class': 'datepicker'})
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        bursary_name = cleaned_data.get('bursary_name')
+        bursary_contact_information = cleaned_data.get('bursary_contact_information')
+        bursary_reference_number = cleaned_data.get('bursary_reference_number')
+
+        if bursary_name or bursary_contact_information or bursary_reference_number:
+            if not (bursary_name and bursary_contact_information and bursary_reference_number):
+                raise forms.ValidationError('All bursary fields must be provided if any one is provided.')
+
+            bursary, created = Bursary.objects.get_or_create(
+                name=bursary_name,
+                contact_information=bursary_contact_information,
+                reference_number=bursary_reference_number
+            )
+            cleaned_data['bursary'] = bursary
+        else:
+            cleaned_data['bursary'] = None
+
+        return cleaned_data
 
 
 

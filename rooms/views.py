@@ -6,34 +6,35 @@ from .models import Building, Room  # Assuming your models are here
 
 
 # Create your views here.
+
+
+# Building views
 @staff_member_required  # Restricts to staff (student leader/admin)
 def building_list(request):
     buildings = Building.objects.all()
-    context = {'buildings': buildings}
-    return render(request, 'rooms/building_list.html', context)
+    return render(request, 'buildings/building_list.html', {'buildings': buildings})
 
 @staff_member_required
 def building_detail(request, pk):
     building = get_object_or_404(Building, pk=pk)
-    context = {'building': building}
-    return render(request, 'rooms/building_detail.html', context)
+    return render(request, 'buildings/building_detail.html', {'building': building})
 
+# Room views
 @staff_member_required
 def room_list(request):
     rooms = Room.objects.all()
-    context = {'rooms': rooms}
-    return render(request, 'rooms/room_list.html', context)
+    return render(request, 'rooms/room_list.html', {'rooms': rooms})
 
 @login_required  # Restricts to logged-in users (students and staff)
-def room_detail(request, pk):
-    room = get_object_or_404(Room, pk=pk)
-    # Check if user is student or staff for roommate details
-    roommate_details = None
-    if request.user.user_type == 'student' and room.capacity > 1:
-        # Logic to retrieve roommate details based on your model structure (StudentRoom or occupants field)
-        roommate_details = []# Your logic to get roommate details
-    context = {'room': room, 'roommate_details': roommate_details}
-    return render(request, 'rooms/room_detail.html', context)
+def room_detail_view(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    roommates = room.occupants.exclude(pk=request.user.pk)  # Exclude the current user
+    return render(request, 'residences/room_detail.html', {
+        'room': room,
+        'roommates': roommates,
+        'items': room.items.all(),
+    })
+
 
 @login_required
 def room_furniture(request, pk):
@@ -44,11 +45,24 @@ def room_furniture(request, pk):
     return render(request, 'rooms/room_furniture.html', context)
 
 @login_required
-def report_brokage(request, pk):
+def report_brokage_view(request, pk):
     room = get_object_or_404(Room, pk=pk)
-    # Handle form submission for reporting broken furniture
     if request.method == 'POST':
-        # Logic to process the report form and potentially create a complaint object
-        return redirect('success_url')  # Replace with appropriate redirect after successful report
+        # # Logic to process the report form and potentially create a complaint object
+        # furniture_id = request.POST.get('furniture_id')
+        # description = request.POST.get('description')
+        # furniture = get_object_or_404(Furniture, id=furniture_id)
+        # complaint = Complaint.objects.create(
+        #     room=room,
+        #     furniture=furniture,
+        #     description=description,
+        #     reported_by=request.user
+        # )
+        return redirect('success_url')  # Replace with appropriate URL name
     context = {'room': room}
     return render(request, 'rooms/report_brokage.html', context)
+
+
+@login_required
+def room_inspection_view(request, inspection_id):
+    pass
