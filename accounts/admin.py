@@ -11,8 +11,8 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'identification', 'gender')}),
         (_('User Type'), {'fields': ('user_type',)}),
-        (_('Student Details'), {'fields': ('student_number', 'is_accepted', 'application_status', 'date_of_birth',
-                                           'course', 'room_type', 'next_of_kin_full_name', 'next_of_kin_address',
+        (_('Student Details'), {'fields': ('student_number', 'is_accepted', 'date_of_birth',
+                                           'course', 'next_of_kin_full_name', 'next_of_kin_address',
                                            'next_of_kin_contact', 'next_of_kin_identification', 'bursary')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
@@ -21,7 +21,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'room_type', 'password1', 'password2'),
+            'fields': ('first_name', 'last_name', 'email', 'gender', 'identification', 'course', 'password1', 'password2'),
         }),
     )
 

@@ -38,25 +38,23 @@ def registration_view(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)  # Don't commit yet for password hashing
+            user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.save()
-            # Handle successful registration (e.g., redirect, confirmation message)
-            redirect('core:home')
+            return redirect('core:home')
         else:
-            context = {'form': form}from django.shortcuts import render, redirect, get_object_or_404
-
+            context = {'form': form}
             return render(request, 'accounts/registration_page.html', context)
     else:
         form = RegistrationForm()
 
     context = {'form': form}
-    return render(request, 'accounts/registration_page.html', context)  # Adjust template name
+    return render(request, 'accounts/registration_page.html', context)
 
 
 def login_view(request):
     if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
+        form = LoginForm(data=request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')

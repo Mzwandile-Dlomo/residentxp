@@ -49,6 +49,7 @@ class CustomUser(AbstractUser):
     username = None
     is_accepted = models.BooleanField(default=False)
     email = models.EmailField(unique=True, verbose_name='Email Address')
+    
     user_type = models.CharField(max_length=20, choices=(
         ('student', 'Student'),
         ('student_leader', 'Student Leader'),
@@ -74,7 +75,7 @@ class CustomUser(AbstractUser):
     bursary = models.ForeignKey('Bursary', on_delete=models.SET_NULL, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['user_type']
+    REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
 
