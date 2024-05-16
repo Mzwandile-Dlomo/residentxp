@@ -12,8 +12,8 @@ class CustomUserAdmin(UserAdmin):
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'identification', 'gender')}),
         (_('User Type'), {'fields': ('user_type',)}),
         (_('Student Details'), {'fields': ('student_number', 'is_accepted', 'date_of_birth',
-                                           'course', 'next_of_kin_full_name', 'next_of_kin_address',
-                                           'next_of_kin_contact', 'next_of_kin_identification', 'bursary')}),
+                                           'course',)}),
+        (_('Next of keen'), {'fields': ('next_of_kin_full_name','next_of_kin_contact','next_of_kin_identification','next_of_kin_address',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )

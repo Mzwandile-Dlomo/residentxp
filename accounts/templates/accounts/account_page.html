@@ -1,29 +1,65 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="container mx-auto">
-  <h1 class="text-2xl font-bold mb-4 bg-indigo-500 text-white px-4 py-2 rounded">Account Information</h1>
-  <h2 class="text-xl font-bold mb-2">Update Details</h2>
-  <form method="POST" class="max-w-md mx-auto">
-    {% csrf_token %}
-    {% for field in form %}
-        <div class="mb-4">
-          <label for="{{ field.id_for_label }}" class="block text-gray-300 font-bold mb-2">{{ field.label_tag }}</label>
-          <div class="flex">
-              {{ field }}
-              {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
-          </div>
+<div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Account Information</h1>
+    {% if edit_mode %}
+    <div class="max-w-2xl mx-auto bg-white shadow-md rounded-md p-6">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">Update Details</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 font-bold mb-2">{{ field.label_tag }}</label>
+                <div class="flex">
+                    {{ field }}
+                    {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
+                </div>
+                {% if field.errors %}
+                <div class="text-sm text-red-500">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="max-w-2xl mx-auto bg-white shadow-md rounded-md p-6">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <p class="mb-2 text-gray-700"><strong>First Name:</strong> {{ user.first_name }}</p>
+                <p class="mb-2 text-gray-700"><strong>Last Name:</strong> {{ user.last_name }}</p>
+                <p class="mb-2 text-gray-700"><strong>Email:</strong> {{ user.email }}</p>
+                <p class="mb-2 text-gray-700"><strong>User Type:</strong> {{ user.get_user_type_display }}</p>
+                <p class="mb-2 text-gray-700"><strong>Identification:</strong> {{ user.identification }}</p>
+                <p class="mb-2 text-gray-700"><strong>Gender:</strong> {{ user.get_gender_display }}</p>
+            </div>
+            <div>
+                <p class="mb-2 text-gray-700"><strong>Student Number:</strong> {{ user.student_number }}</p>
+                <p class="mb-2 text-gray-700"><strong>Date of Birth:</strong> {{ user.date_of_birth }}</p>
+                <p class="mb-2 text-gray-700"><strong>Course:</strong> {{ user.course }}</p>
+                <p class="mb-2 text-gray-700"><strong>Next of Kin Full Name:</strong> {{ user.next_of_kin_full_name }}</p>
+                <p class="mb-2 text-gray-700"><strong>Next of Kin Address:</strong> {{ user.next_of_kin_address }}</p>
+                <p class="mb-2 text-gray-700"><strong>Next of Kin Contact:</strong> {{ user.next_of_kin_contact }}</p>
+                <p class="mb-2 text-gray-700"><strong>Next of Kin Identification:</strong> {{ user.next_of_kin_identification }}</p>
+            </div>
         </div>
-    {% endfor %}
-    <button type="submit" class="w-full px-4 py-2 mb-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update</button>
-  </form>
+        <button id="editBtn" class="px-4 py-2 mt-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Edit Details</button>
+    </div>
+    {% endif %}
 </div>
-
 <style>
-  /* Custom styles for dropdown background color */
-  select {
-      background-color: #164ab1; /* Change to your desired background color */
-      /* Add any other custom styles as needed */
-  }
-  </style>
+    select {
+        background-color: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        color: #4a5568;
+    }
+</style>
+<script>
+    const editBtn = document.getElementById('editBtn');
+    editBtn.addEventListener('click', () => {
+        window.location.href = '{% url 'accounts:update' %}?edit=true';
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Update Account{% endblock %}
+{% block content %}
+<div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Update Details</h1>
+    {% if messages %}
+    <ul class="messages mb-6 text-center">
+        {% for message in messages %}
+        <li {% if message.tags %} class="message {{ message.tags }} text-red-500" {% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="max-w-2xl mx-auto bg-white shadow-md rounded-md p-6">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 font-bold mb-2">{{ field.label_tag }}</label>
+                <div class="flex">
+                    {% if field.name == 'date_of_birth' %}
+                    <input type="date" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.value|date:'Y-m-d' }}" class="form-input">
+                    {% else %}
+                    {{ field }}
+                    {% endif %}
+                    {% if field.field.required %}<span class="ml-2 text-red-500">*</span>{% endif %}
+                </div>
+                {% if field.errors %}
+                <div class="text-sm text-red-500">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div class="flex justify-between">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update</button>
+                <a href="{% url 'accounts:account' %}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:bg-gray-700">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
