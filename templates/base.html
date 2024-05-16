@@ -29,12 +29,12 @@
     </style>
   </head>
   <body>
-    <nav class="bg-gray-800">
+    <nav class="bg-gray-800 fixed w-full z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <a href="{% url 'core:home' %}" class="text-white font-bold text-xl">Resident</a>
+              <a href="{% url 'core:home' %}" class="text-white font-bold text-xl">ALPHASTUDENT ACCOMODATION</a>
             </div>
           </div>
           <div class="flex md:hidden">
@@ -88,7 +88,7 @@
       </div>
     </nav>
 
-    <main>
+    <main class="pt-16">
       <div class="py-6">{% block content %} {% endblock %}</div>
     </main>
 
