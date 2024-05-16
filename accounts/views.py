@@ -88,7 +88,7 @@ def update_view(request):
         'form': form,
     }
     return render(request, 'accounts/account_update_page.html', context)
-    
+
 
 def logout_view(request):
     logout(request)
