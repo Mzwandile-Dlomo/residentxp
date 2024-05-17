@@ -1,16 +1,37 @@
+# accommodations/views.py
 from django.shortcuts import render, get_object_or_404
 from .models import Building, Room, RoomInspection, MaintenanceRequest
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+
+
 # Create your views here.
-# accommodations/views.py
-
-
 @login_required
 def room_detail(request, room_id):
+    user = request.user
     room = get_object_or_404(Room, pk=room_id)
-    inspections = room.roominspection_set.all()
-    return render(request, 'accommodations/room_detail.html', {'room': room, 'inspections': inspections})
+    inspections_object = room.roominspection_set.all()
+    rooms_object = user.rooms.all()
+    rooms_with_occupants = {}
+    room_occupants = []
+    inspections = []
+
+    for inspection in inspections_object:
+        inspections.append(inspection)
+    
+    for room in rooms_object:
+        occupants = room.occupants.all()
+        rooms_with_occupants[room] = occupants
+
+
+    for room, occupants in rooms_with_occupants.items():
+        if occupants.exists():
+            for occupant in occupants:
+                room_occupants.append(occupant)
+
+    
+    return render(request, 'accommodations/room_detail.html', {'room': room, 'inspections': inspections, 'room_occupants': room_occupants})
+
 
 @staff_member_required
 def inspection_detail(request, inspection_id):

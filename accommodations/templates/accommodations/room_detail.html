@@ -1,24 +1,63 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="md:col-span-2">
-        <div class="p-6 rounded-lg shadow-md bg-gradient-to-r from-orange-500 to-yellow-600">
-            <h1 class="text-3xl font-bold text-white mb-4 border-b-2 border-white pb-2">Room: {{ room.building.name }} - {{ room.room_number }}</h1>
-            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold text-white">Room Type:</span> {{ room.room_type }}</p>
-            <p class="text-lg text-gray-200 mb-4"><span class="font-semibold text-white">Capacity:</span> {{ room.capacity }}</p>
-
-            <h2 class="text-2xl font-bold text-white mb-4">Occupants:</h2>
-            <ul class="text-lg text-gray-200 list-disc list-inside space-y-2">
-                {% for occupant in rooms_with_occupants.room %}
-                    <li class="hover:text-yellow-200">{{ occupant.username }}</li>
-                {% empty %}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+            <div class="p-6 rounded-lg shadow-md bg-gradient-to-r from-orange-500 to-yellow-600">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b-2 border-white pb-2">Room: {{ room.building.name }} - {{ room.room_number }}</h1>
+                <p class="text-lg text-gray-200 mb-2"><span class="font-semibold text-white">Room Type:</span> {{ room.room_type }}</p>
+                <p class="text-lg text-gray-200 mb-4"><span class="font-semibold text-white">Capacity:</span> {{ room.capacity }}</p>
+                <h2 class="text-2xl font-bold text-white mb-4">Occupants:</h2>
+                <ul class="text-lg text-gray-200 list-disc list-inside space-y-2">
+                    {% for occupant in room_occupants %}
+                    <li class="flex flex-col cursor-pointer" onclick="toggleOccupantDetails(this)">
+                        <div class="occupant-name flex items-center">
+                            <span class="mr-2">&#8226;</span>
+                            {{ occupant.first_name }} {{ occupant.last_name }}
+                        </div>
+                        <div class="occupant-details hidden mt-2 ml-4">
+                            <span class="text-gray-400">Student Number:</span> {{ occupant.student_number }}
+                            <br>
+                            <span class="text-gray-400">Course:</span> {{ occupant.course }}
+                        </div>
+                    </li>
+                    {% empty %}
                     <li>No occupants</li>
-                {% endfor %}
-            </ul>
+                    {% endfor %}
+                </ul>
+                {% if inspections %}
+                <h2 class="text-2xl font-bold text-white mt-8 mb-4">Inspections:</h2>
+                <ul class="text-lg text-gray-200 list-disc list-inside space-y-2">
+                    {% for inspection in inspections %}
+                    <li class="flex flex-col cursor-pointer" onclick="toggleInspectionDetails(this)">
+                        <div class="inspection-summary flex items-center">
+                            <span class="font-semibold text-white mr-2">Date:</span> {{ inspection.inspection_date }}
+                        </div>
+                        <div class="inspection-details hidden mt-2 ml-4">
+                            <span class="font-semibold text-white">Inspector:</span> {{ inspection.inspector }}
+                            <br>
+                            <span class="text-gray-400">Notes:</span> {{ inspection.notes }}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li>No inspections</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
         </div>
     </div>
-  </div>
 </div>
+
+<script>
+    function toggleOccupantDetails(element) {
+        const details = element.querySelector('.occupant-details');
+        details.classList.toggle('hidden');
+    }
+
+    function toggleInspectionDetails(element) {
+        const details = element.querySelector('.inspection-details');
+        details.classList.toggle('hidden');
+    }
+</script>
 {% endblock %}
