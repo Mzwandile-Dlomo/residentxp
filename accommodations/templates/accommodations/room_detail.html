@@ -1,17 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Room: {{ room.building.name }} - {{ room.room_number }}</h1>
-  <p>Room Type: {{ room.room_type }}</p>
-  <p>Capacity: {{ room.capacity }}</p>
+<div class="container mx-auto px-4 py-8">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-2">
+        <div class="p-6 rounded-lg shadow-md bg-gradient-to-r from-orange-500 to-yellow-600">
+            <h1 class="text-3xl font-bold text-white mb-4 border-b-2 border-white pb-2">Room: {{ room.building.name }} - {{ room.room_number }}</h1>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold text-white">Room Type:</span> {{ room.room_type }}</p>
+            <p class="text-lg text-gray-200 mb-4"><span class="font-semibold text-white">Capacity:</span> {{ room.capacity }}</p>
 
-  <h2>Occupants:</h2>
-  <ul>
-    {% for occupant in rooms_with_occupants.room %}
-      <li>{{ occupant.username }}</li>
-    {% empty %}
-      <li>No occupants</li>
-    {% endfor %}
-  </ul>
+            <h2 class="text-2xl font-bold text-white mb-4">Occupants:</h2>
+            <ul class="text-lg text-gray-200 list-disc list-inside space-y-2">
+                {% for occupant in rooms_with_occupants.room %}
+                    <li class="hover:text-yellow-200">{{ occupant.username }}</li>
+                {% empty %}
+                    <li>No occupants</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
-
