@@ -7,5 +7,11 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 @login_required
 def home_view(request):
-    return render(request, 'core/home.html')
+    user = request.user
+    user_rooms = user.rooms.all()
+    print("USER________")
+    print(user)
+    print(user_rooms)
+    context = {'user_room': user_rooms}
+    return render(request, 'core/home.html', context)
 
