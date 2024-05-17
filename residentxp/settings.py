@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'accounts',
     'complaints',
     'core',
-    # 'rooms',
+    'rooms',
     'students'
 ]
 

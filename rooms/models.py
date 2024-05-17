@@ -6,39 +6,64 @@ CustomUser = get_user_model()
 
 # Create your models here.
 class Building(models.Model):
-  name = models.CharField(max_length=255)
-  capacity = models.PositiveIntegerField()  # Total number of students the building can accommodate
-  gender = models.CharField(max_length=10, choices=[('UN', 'Unisex'), ('M', 'Male Only'), ('F', 'Female Only')])
-
-  def __str__(self):
-    return self.name
+    name = models.CharField(max_length=255)
+    capacity = models.PositiveIntegerField()  # Total number of students the building can accommodate
+    gender_type = models.CharField(
+            max_length=10,
+            choices=(
+                ('unisex', 'Unisex'),
+                ('male', 'Male'),
+                ('female', 'Female'),
+            ),
+        )
+    
+    def __str__(self):
+        return self.name
 
 
 class Room(models.Model):
-  building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms')
-  room_number = models.CharField(max_length=20)
-  room_type = models.CharField(max_length=20, choices=[('S', 'Single'), ('SE', 'Single Ensuit'), ('DS', 'Double Sharing'), ('DSE', 'Double Sharing Ensuit')])  # Single, Single ensuite, Sharing, Sharing ensuite
-  occupants = models.ManyToManyField(CustomUser, related_name='rooms', blank=True)
-  capacity = models.PositiveIntegerField(default=1)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms')
+    room_number = models.CharField(max_length=20)
+    occupants = models.ManyToManyField(CustomUser, related_name='rooms', blank=True)
+    capacity = models.PositiveIntegerField(default=1)
 
-  def __str__(self):
-    return f"{self.building.name} - {self.room_number}"
+    room_type = models.CharField(
+            max_length=20,
+            choices=(
+                ('single', 'Single'),
+                ('single_ensuite', 'Single Ensuite'),
+                ('double', 'Double'),
+                ('double_ensuite', 'Double Ensuite'),
+            ),
+        )
+    
+    
+    def __str__(self):
+        return f"{self.building.name} - {self.room_number}"
 
 
 class RoomInspection(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    date = models.DateField()
-    inspector = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # User who performed the inspection
-    report = models.TextField()
-    status = models.CharField(max_length=20, choices=[
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-    ], default='pending')
+    inspection_date = models.DateField(auto_now_add=True)
+    inspector = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name='inspections_performed')
+    requested_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='inspections_requested')
+    check_in = models.BooleanField(default=False)
+    check_out = models.BooleanField(default=False)
+    comments = models.TextField(blank=True)
+    
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('requested', 'Requested'),
+            ('pending', 'Pending'),
+            ('completed', 'Completed'),
+        ],
+        default='requested'
+    )
 
     def __str__(self):
-        return f"Inspection for {self.room} on {self.date} by {self.inspector}"
-
+        return f"Inspection for {self.room} on {self.inspection_date} by {self.requested_by}"
+    
 
 class MaintenanceRequest(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='maintenance_requests')

@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from .models import Room, RoomInspection, MaintenanceRequest, Building
 
 # Register your models here.
-# admin.site.register(Room)
-# admin.site.register(RoomInspection)
-# admin.site.register(MaintenanceRequest)
-# admin.site.register(Building)
+admin.site.register(Room)
+admin.site.register(RoomInspection)
+admin.site.register(MaintenanceRequest)
+admin.site.register(Building)

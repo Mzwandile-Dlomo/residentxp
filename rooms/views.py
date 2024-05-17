@@ -6,34 +6,22 @@ from .models import Building, Room  # Assuming your models are here
 
 
 # Create your views here.
-
-
-# Building views
-@staff_member_required  # Restricts to staff (student leader/admin)
-def building_list(request):
-    buildings = Building.objects.all()
-    return render(request, 'buildings/building_list.html', {'buildings': buildings})
-
-@staff_member_required
-def building_detail(request, pk):
-    building = get_object_or_404(Building, pk=pk)
-    return render(request, 'buildings/building_detail.html', {'building': building})
-
 # Room views
-@staff_member_required
-def room_list(request):
-    rooms = Room.objects.all()
-    return render(request, 'rooms/room_list.html', {'rooms': rooms})
-
 @login_required  # Restricts to logged-in users (students and staff)
 def room_detail_view(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     roommates = room.occupants.exclude(pk=request.user.pk)  # Exclude the current user
-    return render(request, 'residences/room_detail.html', {
+    return render(request, 'rooms/room_detail.html', {
         'room': room,
         'roommates': roommates,
         'items': room.items.all(),
     })
+
+
+@staff_member_required
+def room_list(request):
+    rooms = Room.objects.all()
+    return render(request, 'rooms/room_list.html', {'rooms': rooms})
 
 
 @login_required
@@ -43,6 +31,7 @@ def room_furniture(request, pk):
     furniture_list = []# Your logic to get furniture detail
     context = {'room': room, 'furniture_list': furniture_list}
     return render(request, 'rooms/room_furniture.html', context)
+
 
 @login_required
 def report_brokage_view(request, pk):
@@ -61,6 +50,19 @@ def report_brokage_view(request, pk):
         return redirect('success_url')  # Replace with appropriate URL name
     context = {'room': room}
     return render(request, 'rooms/report_brokage.html', context)
+
+
+# Building views
+@staff_member_required  # Restricts to staff (student leader/admin)
+def building_list(request):
+    buildings = Building.objects.all()
+    return render(request, 'buildings/building_list.html', {'buildings': buildings})
+
+
+@staff_member_required
+def building_detail(request, pk):
+    building = get_object_or_404(Building, pk=pk)
+    return render(request, 'buildings/building_detail.html', {'building': building})
 
 
 @login_required
