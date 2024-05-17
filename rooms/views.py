@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -8,13 +7,14 @@ from .models import Building, Room  # Assuming your models are here
 # Create your views here.
 # Room views
 @login_required  # Restricts to logged-in users (students and staff)
-def room_detail_view(request, room_id):
-    room = get_object_or_404(Room, id=room_id)
-    roommates = room.occupants.exclude(pk=request.user.pk)  # Exclude the current user
+def room_detail_view(request, room_number):
+    # room = get_object_or_404(Room, id=room_id)
+    room = get_object_or_404(Room, room_number=room_number)
+    roommates = room.occupants.all()
     return render(request, 'rooms/room_detail.html', {
         'room': room,
         'roommates': roommates,
-        'items': room.items.all(),
+        # 'items': room.items.all(),
     })
 
 
