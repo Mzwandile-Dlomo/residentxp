@@ -2,9 +2,9 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import AbstractBaseUser, Group, Permission, PermissionsMixin, AbstractUser, BaseUserManager, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager, BaseUserManager
 from django.utils.translation import gettext_lazy as _
-
+# from accommodations.models import Room, RoomInspection
 
 class CustomUserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
@@ -76,6 +76,24 @@ class CustomUser(AbstractUser):
         if self.user_type == 'admin':
             self.room_type = None
         super().save(*args, **kwargs)
+
+    # def save(self, *args, **kwargs):
+    #     is_new_user = self.pk is None  # Check if it's a new user
+    #     creating_student = self.user_type == 'student' and (is_new_user or (not is_new_user and not self.is_accepted and self.is_accepted))
+
+    #     super().save(*args, **kwargs)
+
+    #     if creating_student:
+    #         # Assign a room to the student (you may need to implement your own logic here)
+    #         room = Room.objects.first()  # For demonstration purposes, we're using the first available room
+
+    #         if room:
+    #             # Create a new RoomInspection instance with check_in set to True
+    #             RoomInspection.objects.create(
+    #                 room=room,
+    #                 requested_by=self,
+    #                 check_in=True
+    #             )
 
 class RentalAgreement(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='rental_agreements')

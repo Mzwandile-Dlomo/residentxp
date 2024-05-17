@@ -33,6 +33,9 @@ def room_detail(request, room_id):
     return render(request, 'accommodations/room_detail.html', {'room': room, 'inspections': inspections, 'room_occupants': room_occupants})
 
 
+def request_inspection(request, room_id):
+    pass
+
 @staff_member_required
 def inspection_detail(request, inspection_id):
     inspection = get_object_or_404(RoomInspection, pk=inspection_id)

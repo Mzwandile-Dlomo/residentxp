@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+
 
 
 # Create your models here.
@@ -84,3 +86,50 @@ class MaintenanceRequest(models.Model):
         return f"Maintenance Request for {self.room.room_number} on {self.request_date}"
 
 
+# def allocate_rooms(students):
+#     # Group students by gender
+#     male_students = [student for student in students if student.gender == 'male']
+#     female_students = [student for student in students if student.gender == 'female']
+
+#     # Get available rooms
+#     available_rooms = Room.objects.filter(
+#         Q(building__gender_type='unisex') |
+#         Q(building__gender_type='male', occupants__gender='male') |
+#         Q(building__gender_type='female', occupants__gender='female')
+#     ).annotate(
+#         remaining_capacity=models.Case(
+#             models.When(room_type__in=['single', 'single_ensuite'], then=models.Value(1)),
+#             models.When(room_type__in=['double', 'double_ensuite'], then=models.Value(2)),
+#             default=models.Value(0),
+#             output_field=models.IntegerField()
+#         ) - models.Count('occupants')
+#     ).filter(remaining_capacity__gt=0)
+
+#     # Allocate male students
+#     for student in male_students:
+#         allocate_student(student, available_rooms, 'male')
+
+#     # Allocate female students
+#     for student in female_students:
+#         allocate_student(student, available_rooms, 'female')
+
+# def allocate_student(student, available_rooms, gender):
+#     # Filter available rooms based on gender
+#     gender_rooms = available_rooms.filter(
+#         Q(building__gender_type='unisex') |
+#         Q(building__gender_type=gender)
+#     )
+
+#     # Try to allocate a room
+#     for room in gender_rooms.order_by('remaining_capacity'):
+#         if room.remaining_capacity >= 1:
+#             room.occupants.add(student)
+#             room.save()
+
+#             # Create a RoomInspection instance with check_in=True
+#             RoomInspection.objects.create(
+#                 room=room,
+#                 requested_by=student,
+#                 check_in=True
+#             )
+#             break
