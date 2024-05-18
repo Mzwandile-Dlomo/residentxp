@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
-from .models import Payment, CustomUser, RentalAgreement, Bursary
+from .models import CustomUser
 
 class CustomUserAdmin(UserAdmin):
     """Define admin model for custom User model with additional fields."""
@@ -39,6 +39,4 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(get_user_model(), CustomUserAdmin)
-admin.site.register(Payment)
-admin.site.register(Bursary)
-admin.site.register(RentalAgreement)
+

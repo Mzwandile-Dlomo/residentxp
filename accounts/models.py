@@ -4,10 +4,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, BaseUserManager, BaseUserManager
 from django.utils.translation import gettext_lazy as _
-# from accommodations.models import Room, RoomInspection
 
 class CustomUserManager(BaseUserManager):
-    """Define a model manager for User model with no username field."""
 
     def _create_user(self, email, password=None, **extra_fields):
         """Create and save a User with the given email and password."""
@@ -76,56 +74,3 @@ class CustomUser(AbstractUser):
         if self.user_type == 'admin':
             self.room_type = None
         super().save(*args, **kwargs)
-
-    # def save(self, *args, **kwargs):
-    #     is_new_user = self.pk is None  # Check if it's a new user
-    #     creating_student = self.user_type == 'student' and (is_new_user or (not is_new_user and not self.is_accepted and self.is_accepted))
-
-    #     super().save(*args, **kwargs)
-
-    #     if creating_student:
-    #         # Assign a room to the student (you may need to implement your own logic here)
-    #         room = Room.objects.first()  # For demonstration purposes, we're using the first available room
-
-    #         if room:
-    #             # Create a new RoomInspection instance with check_in set to True
-    #             RoomInspection.objects.create(
-    #                 room=room,
-    #                 requested_by=self,
-    #                 check_in=True
-    #             )
-
-class RentalAgreement(models.Model):
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='rental_agreements')
-    landlord = models.CharField(max_length=100)
-    rent_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_frequency = models.CharField(max_length=20, choices=[('monthly', 'Monthly'), ('quarterly', 'Quarterly')])
-    start_date = models.DateField()
-    end_date = models.DateField()
-    agreement_signed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Rental Agreement for {self.student.email}"
-
-
-class Bursary(models.Model):
-    name = models.CharField(max_length=100)
-    contact_information = models.CharField(max_length=200, null=True, blank=True)
-    reference_number = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-    
-
-class Payment(models.Model):
-    rental_agreement = models.ForeignKey(RentalAgreement, on_delete=models.CASCADE, related_name='payments')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_date = models.DateField()
-    paid_by_bursary = models.BooleanField(default=False)
-    is_cash_payment = models.BooleanField(default=False)
-    bursary = models.ForeignKey(Bursary, on_delete=models.SET_NULL, null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payments')
-    payment_method =  ('cash paying', 'bursary')
-
-    def __str__(self):
-        return f"Payment of {self.amount} for {self.rental_agreement}"

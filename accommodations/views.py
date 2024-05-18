@@ -1,6 +1,6 @@
 # accommodations/views.py
-from django.shortcuts import render, get_object_or_404
-from .models import Building, Room, RoomInspection, MaintenanceRequest
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -10,7 +10,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 def room_detail(request, room_id):
     user = request.user
     room = get_object_or_404(Room, pk=room_id)
-    inspections_object = room.roominspection_set.all()
+    inspections_object = room.inspection_requests.all()
     rooms_object = user.rooms.all()
     rooms_with_occupants = {}
     room_occupants = []
@@ -34,11 +34,31 @@ def room_detail(request, room_id):
 
 
 def request_inspection(request, room_id):
-    pass
+    room = get_object_or_404(Room, pk=room_id)
+
+    if request.method == 'POST':
+        # Get the inspection date and type from the form data
+        inspection_date = request.POST.get('inspection_date')
+        inspection_type = request.POST.get('inspection_type')
+
+        print(inspection_date, inspection_type)
+
+        # Create a new inspection request with the selected date and type
+        inspection_request = RoomInspectionRequest.objects.create(
+            room=room,
+            requested_by=request.user,
+            type=inspection_type,
+            inspection_date=inspection_date
+        )
+        inspection_request.save()
+
+        # Redirect back to the room detail page or another appropriate page
+        return redirect('accommodations:room_detail', room_id=room.id)
+    
 
 @staff_member_required
 def inspection_detail(request, inspection_id):
-    inspection = get_object_or_404(RoomInspection, pk=inspection_id)
+    inspection = get_object_or_404(RoomInspectionRequest, pk=inspection_id)
     return render(request, 'accommodations/inspection_detail.html', {'inspection': inspection})
 
 @staff_member_required

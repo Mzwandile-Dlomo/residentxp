@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import CustomUser, RentalAgreement, Bursary, Payment
+from .models import CustomUser
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator

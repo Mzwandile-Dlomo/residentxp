@@ -33,13 +33,13 @@
                 {% for inspection in inspections %}
                 <li class="bg-white bg-opacity-10 rounded-md p-4 cursor-pointer" onclick="toggleInspectionDetails(this)">
                     <div class="flex items-center justify-between">
-                        <span class="font-semibold text-white">Date: {{ inspection.inspection_date }}</span>
+                        <span class="font-semibold text-white">Date: {{ inspection.requested_at }}</span>
                         <svg class="h-5 w-5 text-gray-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </div>
                     <div class="inspection-details hidden mt-4 pl-4">
-                        <p class="font-semibold text-white">Inspector: {{ inspection.inspector }}</p>
+                        <p class="font-semibold text-white">Inspection date: {{ inspection.inspection_date }}</p>
                         <p class="text-gray-400">Notes: {{ inspection.comments }}</p>
                     </div>
                 </li>
@@ -49,9 +49,12 @@
             </ul>
             {% endif %}
             <h2 class="text-2xl font-bold text-white mt-8 mb-4">Request Inspection:</h2>
-            <a href="{% url 'accommodations:request_inspection' room.id %}" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
-                Request Inspection
-            </a>
+            <form id="inspectionForm" action="{% url 'accommodations:request_inspection' room.id %}" method="POST" class="flex items-center justify-center mb-4">
+                {% csrf_token %}
+                <input type="datetime-local" name="inspection_date" class="rounded-md p-2 border border-gray-300 text-gray-800 bg-white focus:outline-none focus:border-blue-500" style="width: 40%;" required>
+                <button type="submit" name="inspection_type" value="check_in" class="px-4 rounded-l-lg bg-gray-700 text-white font-semibold p-2 border border-gray-700 border-r-0 cursor-pointer">Request Check-in Inspection</button>
+                <button type="submit" name="inspection_type" value="check_out" class="px-4 rounded-r-lg bg-gray-700 text-white font-semibold p-2 border border-gray-700 border-l-0 cursor-pointer">Request Check-out Inspection</button>
+            </form>
         </div>
     </div>
 </div>
