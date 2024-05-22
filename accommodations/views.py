@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm
+from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm, MaintenanceRequestForm
 from django.contrib import messages
 
 
@@ -126,6 +126,17 @@ def log_visitor_view(request):
     }
     return render(request, 'accommodations/visitor.html', context)
 
+
+def maintainance_request_view(request):
+    if request.method == 'POST':
+        form = MaintenanceRequestForm(request.POST, request.FILES)
+        if form.is_valid():
+            maintenance_request = form.save()
+            messages.success(request, "Maintainance submitted!")
+            return redirect('core:home')
+    else:
+        form = MaintenanceRequestForm()
+    return render(request, 'accommodations/maintainance.html', {'form': form})
 
 # --------------------------------------------------------------------------------------------------------
 @staff_member_required
