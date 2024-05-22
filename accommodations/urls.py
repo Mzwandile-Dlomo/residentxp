@@ -13,6 +13,9 @@ urlpatterns = [
 
     path('complaint/', views.complaint_view, name='complaint'),
 
+    path('log-visitor/', views.log_visitor_view, name='visitor'),
+
+
 
     path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_detail'),
 ]

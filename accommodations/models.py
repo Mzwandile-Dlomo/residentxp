@@ -100,7 +100,25 @@ class Complaint(models.Model):
 
     def __str__(self):
         return f"Complaint: {self.title} by {self.requested_by.email}"
-    
+
+
+class VisitorLog(models.Model):
+    student = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='visitor_logs')
+    visitor_name = models.CharField(max_length=100)
+    visitor_contact = models.CharField(max_length=15)  # Consider using a validator for phone numbers
+    visit_purpose = models.CharField(max_length=255)
+    visit_date = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Use student object to get the student room
+
+    def __str__(self):
+        # return f"Visitor: {self.visitor_name} for {self.student.first_name} {self.student.last_name}"
+        room_numbers = [room.room_number for room in self.student.rooms.all()]
+        room_info = ', '.join(room_numbers) if room_numbers else 'No Room Assigned'
+        return f"Visitor: {self.visitor_name} for {self.student.first_name} {self.student.last_name} (Rooms: {room_info})"
+
+
 class MaintenanceRequest(models.Model):
     requested_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='maintenance_requests')
     room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True, related_name='maintenance_requests')

@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import RoomReservationForm, ComplaintForm
+from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm
 from django.contrib import messages
 
 
@@ -98,6 +98,33 @@ def complaint_view(request):
 
     context = {'form': form, 'complaints': complaints}
     return render(request, 'accommodations/complaint.html', context)
+
+
+@login_required
+def log_visitor_view(request):
+    visitors_list = []
+
+    if request.method == 'POST':
+        form = VisitorLogForm(request.POST)
+        if form.is_valid():
+            visitor_log = form.save(commit=False)
+            visitor_log.student = request.user
+            visitor_log.save()
+            messages.success(request, 'Visitor logged successfully!')
+            return redirect('core:home')
+    else:
+        form = VisitorLogForm()
+    
+    visitor_logs = request.user.visitor_logs.all()  # Get all visitor logs for the current user
+
+    for visitor in visitor_logs:
+        visitors_list.append(visitor)
+
+    context = {
+        'form': form,
+        'visitor_logs': visitors_list
+    }
+    return render(request, 'accommodations/visitor.html', context)
 
 
 # --------------------------------------------------------------------------------------------------------
