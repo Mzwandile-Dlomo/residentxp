@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import datetime
 
 CustomUser = get_user_model()  
 
@@ -42,6 +43,9 @@ class Room(models.Model):
     
     def __str__(self):
         return f"{self.building.name} - {self.room_number}"
+
+    def has_available_beds(self):
+        return self.capacity > self.occupants.count()
 
 
 
@@ -169,6 +173,27 @@ class Payment(models.Model):
         return f"Payment of {self.amount} for {self.rental_agreement}"
 
 
+class RoomReservation(models.Model):
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='room_reservations')
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='reservations')
+    reservation_date = models.DateTimeField(auto_now_add=True)
+    check_in_date = models.DateField(null=True)
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ), default='pending')
+
+    def __str__(self):
+        return f"{self.student.first_name} - {self.room.room_number} ({self.status})"
+
+    def save(self, *args, **kwargs):
+        if not self.room.room_type.endswith('ensuite'):
+            raise ValueError("Only ensuite rooms can be reserved.")
+        
+        super().save(*args, **kwargs)
+
+
 class StudentAllocation(models.Model):
     student = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='allocation')
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='allocations')
@@ -176,6 +201,19 @@ class StudentAllocation(models.Model):
 
 
     def save(self, *args, **kwargs):
+        if not self.room.has_available_beds():
+            raise ValueError("Room is already full")
+        
+        # Check for existing reservations for this room
+        existing_reservations = RoomReservation.objects.filter(
+            room=self.room, status__in=['pending', 'approved']
+        )
+
+        if existing_reservations.exists():
+            # Reject allocation if there are pending or approved reservations
+            reservations = ", ".join([str(r) for r in existing_reservations])
+            raise ValueError(f"Room reservation(s) {reservations} exist for this room")   
+
         super().save(*args, **kwargs)
         self.student.is_accepted = True
         self.student.save()  

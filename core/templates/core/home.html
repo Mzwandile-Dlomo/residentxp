@@ -1,6 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mx-auto px-8 py-8">
+    {% if messages %}
+    <div id="success-message" class="mt-4 bg-green-500 text-white p-4 rounded-md">
+        <h3 class="font-semibold">Success:</h3>
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="md:col-span-2">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -19,7 +29,7 @@
                         </div>
                     {% endif %}
 
-                    <a href="#" class="block p-6 rounded-lg shadow-md bg-gradient-to-r from-indigo-500 to-purple-600 hover:bg-gradient-to-l hover:from-indigo-600 hover:to-purple-700 transition duration-300">
+                    <a href="{% url 'accommodations:room_reservation' %}" class="block p-6 rounded-lg shadow-md bg-gradient-to-r from-indigo-500 to-purple-600 hover:bg-gradient-to-l hover:from-indigo-600 hover:to-purple-700 transition duration-300">
                         <h2 class="text-2xl font-bold text-white mb-2">Room Reservation</h2>
                         <p class="text-gray-200">Reserve a room for your stay</p>
                     </a>
@@ -84,4 +94,13 @@
         </div>
     </div>
 </div>
+<script>
+    // Automatically hide success message after 10 seconds
+    setTimeout(function() {
+        var successMessage = document.getElementById('success-message');
+        if (successMessage) {
+            successMessage.style.display = 'none';
+        }
+    }, 1000); // 10 seconds
+    </script>
 {% endblock %}

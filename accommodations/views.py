@@ -1,8 +1,10 @@
 # accommodations/views.py
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest
+from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from .forms import RoomReservationForm
+from django.contrib import messages
 
 
 # Create your views here.
@@ -56,6 +58,25 @@ def request_inspection(request, room_id):
         return redirect('accommodations:room_detail', room_id=room.id)
     
 
+@login_required
+def room_reservation_view(request):
+    ensuite_rooms = Room.objects.filter(room_type__in=['single_ensuite', 'double_ensuite'])
+
+    if request.method == 'POST':
+        form = RoomReservationForm(request.POST, user=request.user)
+        if form.is_valid():
+            reservation = form.save(commit=False)
+            reservation.student = request.user
+            reservation.save()
+            messages.success(request, 'Room reservation submitted successfully!')
+            return redirect('core:home')
+    else:
+        form = RoomReservationForm(user=request.user)
+
+    context = {'form': form, 'rooms': ensuite_rooms}
+    return render(request, 'accommodations/room_reservation.html', context)
+
+# --------------------------------------------------------------------------------------------------------
 @staff_member_required
 def inspection_detail(request, inspection_id):
     inspection = get_object_or_404(RoomInspectionRequest, pk=inspection_id)

@@ -1,0 +1,41 @@
+<!-- room_reservation.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex justify-center px-4 py-8">
+    <div class="w-full md:w-2/3 lg:w-1/2">
+        <div class="bg-gradient-to-r from-orange-500 to-yellow-600 rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-white mb-4">Reserve a Room</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="room" class="text-lg text-gray-200 block mb-2">Room:</label>
+                    <select name="room" id="room" class="rounded-md p-2 border border-gray-300 text-gray-800 bg-white focus:outline-none focus:border-blue-500" required>
+                        {% for room in rooms %}
+                            <option value="{{ room.id }}">{{ room }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="check_in_date" class="text-lg text-gray-200 block mb-2">Check-in Date:</label>
+                    <input type="date" name="check_in_date" id="check_in_date" class="rounded-md p-2 border border-gray-300 text-gray-800 bg-white focus:outline-none focus:border-blue-500" required>
+                </div>
+                <button type="submit" class="bg-gray-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-gray-800">Reserve Room</button>
+            </form>
+            <!-- Display form errors -->
+            {% if form.errors %}
+            <div class="mt-4 bg-red-500 text-white p-4 rounded-md">
+                <h3 class="font-semibold">Form Errors:</h3>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
