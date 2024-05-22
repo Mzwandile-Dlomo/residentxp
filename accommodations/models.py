@@ -99,7 +99,7 @@ class Complaint(models.Model):
     resolved_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"Complaint: {self.title} by {self.student.email}"
+        return f"Complaint: {self.title} by {self.requested_by.email}"
     
 class MaintenanceRequest(models.Model):
     requested_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='maintenance_requests')

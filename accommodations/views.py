@@ -1,9 +1,9 @@
 # accommodations/views.py
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation
+from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import RoomReservationForm
+from .forms import RoomReservationForm, ComplaintForm
 from django.contrib import messages
 
 
@@ -43,8 +43,6 @@ def request_inspection(request, room_id):
         inspection_date = request.POST.get('inspection_date')
         inspection_type = request.POST.get('inspection_type')
 
-        print(inspection_date, inspection_type)
-
         # Create a new inspection request with the selected date and type
         inspection_request = RoomInspectionRequest.objects.create(
             room=room,
@@ -75,6 +73,32 @@ def room_reservation_view(request):
 
     context = {'form': form, 'rooms': ensuite_rooms}
     return render(request, 'accommodations/room_reservation.html', context)
+
+
+@login_required
+def complaint_view(request):
+
+    user_complaints = Complaint.objects.filter(requested_by=request.user)
+    complaints = []
+
+    for complaint in user_complaints:
+        complaints.append(complaint)
+    
+
+    if request.method == 'POST':
+        form = ComplaintForm(request.POST)
+        if form.is_valid():
+            complaint = form.save(commit=False)
+            complaint.requested_by = request.user
+            complaint.save()
+            messages.success(request, 'Complaint submitted!')
+            return redirect('core:home')
+    else:
+        form = ComplaintForm()
+
+    context = {'form': form, 'complaints': complaints}
+    return render(request, 'accommodations/complaint.html', context)
+
 
 # --------------------------------------------------------------------------------------------------------
 @staff_member_required
