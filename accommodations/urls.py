@@ -15,6 +15,8 @@ urlpatterns = [
 
     path('log-visitor/', views.log_visitor_view, name='visitor'),
 
+    path('maintainance-request/new/', views.maintainance_request_view, name='maintainance'),
+
 
 
     path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_detail'),

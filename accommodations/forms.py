@@ -13,7 +13,7 @@ class InspectionRequestForm(forms.ModelForm):
 class MaintenanceRequestForm(forms.ModelForm):
     class Meta:
         model = MaintenanceRequest
-        fields = ('room', 'location', 'description', 'urgency')
+        fields = ('location','room', 'description', 'urgency', 'picture')
 
     def __init__(self, *args, **kwargs):
         super(MaintenanceRequestForm, self).__init__(*args, **kwargs)

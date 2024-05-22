@@ -143,6 +143,8 @@ class MaintenanceRequest(models.Model):
         ('assigned', 'Assigned'),
         ('completed', 'Completed'),
     )
+    
+    picture = models.ImageField(upload_to='maintenance_requests', null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     assigned_to = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_maintenance_requests')
