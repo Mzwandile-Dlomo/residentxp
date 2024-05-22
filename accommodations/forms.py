@@ -1,5 +1,5 @@
 from django import forms
-from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint
+from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, VisitorLog
 
 class InspectionRequestForm(forms.ModelForm):
     class Meta:
@@ -69,3 +69,13 @@ class RoomReservationForm(forms.ModelForm):
             raise forms.ValidationError("You already have a reservation for this room.")
 
         return room
+    
+
+
+class VisitorLogForm(forms.ModelForm):
+    class Meta:
+        model = VisitorLog
+        fields = ['visitor_name', 'visitor_contact', 'visit_purpose', 'visit_date']
+        widgets = {
+            'visit_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
