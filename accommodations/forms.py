@@ -1,5 +1,5 @@
 from django import forms
-from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation
+from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint
 
 class InspectionRequestForm(forms.ModelForm):
     class Meta:
@@ -34,7 +34,13 @@ class MaintenanceRequestForm(forms.ModelForm):
             raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request.")
 
         return cleaned_data
-    
+
+
+class ComplaintForm(forms.ModelForm):
+    class Meta:
+        model = Complaint
+        fields = ['title', 'description', 'category']
+
 
 class RoomReservationForm(forms.ModelForm):
     class Meta:

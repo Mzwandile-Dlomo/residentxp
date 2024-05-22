@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Room, RoomInspectionRequest, MaintenanceRequest, Building, StudentAllocation, RoomReservation
+from .models import Room, RoomInspectionRequest, MaintenanceRequest, Building, StudentAllocation, RoomReservation, Complaint
 from .models import Payment, RentalAgreement, Bursary
 from accounts.models import CustomUser
 from accounts.admin import CustomUserAdmin as AccountsCustomUserAdmin  # Import the original CustomUserAdmin
@@ -32,3 +32,4 @@ admin.site.register(RoomInspectionRequest)
 admin.site.register(MaintenanceRequest)
 admin.site.register(StudentAllocation)
 admin.site.register(RoomReservation)
+admin.site.register(Complaint)

@@ -11,5 +11,8 @@ urlpatterns = [
     path('rooms/room/<int:room_id>/request_inspection/', views.request_inspection, name='request_inspection'),
     path('room-reservation/', views.room_reservation_view, name='room_reservation'),
 
+    path('complaint/', views.complaint_view, name='complaint'),
+
+
     path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_detail'),
 ]
