@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('maintainance-request/new/', views.maintainance_request_view, name='maintainance'),
 
+    path('payment-method/', views.payment_method_view, name='payment_create'),
 
 
     path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_detail'),

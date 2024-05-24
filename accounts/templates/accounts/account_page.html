@@ -24,23 +24,75 @@
     </div>
     {% else %}
     <div class="max-w-2xl mx-auto bg-white shadow-md rounded-md p-6">
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <p class="mb-2 text-gray-700"><strong>First Name:</strong> {{ user.first_name }}</p>
-                <p class="mb-2 text-gray-700"><strong>Last Name:</strong> {{ user.last_name }}</p>
-                <p class="mb-2 text-gray-700"><strong>Email:</strong> {{ user.email }}</p>
-                <p class="mb-2 text-gray-700"><strong>User Type:</strong> {{ user.get_user_type_display }}</p>
-                <p class="mb-2 text-gray-700"><strong>Identification:</strong> {{ user.identification }}</p>
-                <p class="mb-2 text-gray-700"><strong>Gender:</strong> {{ user.get_gender_display }}</p>
+        <div>
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Personal Information</h2>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <p class="mb-2 text-gray-700"><strong>First Name:</strong> {{ user.first_name }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Last Name:</strong> {{ user.last_name }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-2 text-gray-700"><strong>User Type:</strong> {{ user.get_user_type_display }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Identification:</strong> {{ user.identification }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Gender:</strong> {{ user.get_gender_display }}</p>
+                </div>
+                <div>
+                    <p class="mb-2 text-gray-700"><strong>Student Number:</strong> {{ user.student_number }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Date of Birth:</strong> {{ user.date_of_birth }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Course:</strong> {{ user.course }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Next of Kin Full Name:</strong> {{ user.next_of_kin_full_name }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Next of Kin Address:</strong> {{ user.next_of_kin_address }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Next of Kin Contact:</strong> {{ user.next_of_kin_contact }}</p>
+                    <p class="mb-2 text-gray-700"><strong>Next of Kin Identification:</strong> {{ user.next_of_kin_identification }}</p>
+                </div>
             </div>
-            <div>
-                <p class="mb-2 text-gray-700"><strong>Student Number:</strong> {{ user.student_number }}</p>
-                <p class="mb-2 text-gray-700"><strong>Date of Birth:</strong> {{ user.date_of_birth }}</p>
-                <p class="mb-2 text-gray-700"><strong>Course:</strong> {{ user.course }}</p>
-                <p class="mb-2 text-gray-700"><strong>Next of Kin Full Name:</strong> {{ user.next_of_kin_full_name }}</p>
-                <p class="mb-2 text-gray-700"><strong>Next of Kin Address:</strong> {{ user.next_of_kin_address }}</p>
-                <p class="mb-2 text-gray-700"><strong>Next of Kin Contact:</strong> {{ user.next_of_kin_contact }}</p>
-                <p class="mb-2 text-gray-700"><strong>Next of Kin Identification:</strong> {{ user.next_of_kin_identification }}</p>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Rental Agreements</h2>
+            <div class="grid grid-cols-1 gap-4 mb-6">
+                {% if lease_agreements %}
+                    {% for agreement in lease_agreements %}
+                    <div class="p-4 bg-gray-100 rounded-md">
+                        <p class="mb-2 text-gray-700"><strong>Landlord:</strong> 1</p>
+                        <p class="mb-2 text-gray-700"><strong>Rent Amount:</strong> ${{ agreement.rent_amount }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Payment Frequency:</strong> {{ agreement.get_payment_frequency_display }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Start Date:</strong> {{ agreement.start_date }}</p>
+                        <p class="mb-2 text-gray-700"><strong>End Date:</strong> {{ agreement.end_date }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Agreement Signed:</strong> {{ agreement.agreement_signed|yesno:"Yes,No" }}</p>
+                        <a href="{% url 'accounts:rental_agreement_update' agreement.pk %}" class="mt-2 inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No rental agreements found.</p>
+                    <a href="{% url 'accounts:lease_agreement' %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:bg-green-700">Create Rental Agreement</a>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Payment Information</h2>
+            <div class="grid grid-cols-1 gap-4">
+                {% if payments %}
+                    {% for payment in payments %}
+                    <div class="p-4 bg-gray-100 rounded-md">
+                        <p class="mb-2 text-gray-700"><strong>Amount:</strong> ${{ payment.amount }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Payment Date:</strong> {{ payment.payment_date }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Paid by Bursary:</strong> {{ payment.paid_by_bursary|yesno:"Yes,No" }}</p>
+                        {% if payment.is_cash_payment %}
+                        <p class="mb-2 text-gray-700"><strong>Cash Payment Reference:</strong> {{ payment.cash_payment_reference }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Cash Payment Date:</strong> {{ payment.cash_payment_date }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Cash Payment Method:</strong> {{ payment.cash_payment_method }}</p>
+                        {% elif payment.bursary %}
+                        <p class="mb-2 text-gray-700"><strong>Bursary Name:</strong> {{ payment.bursary_name }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Bursary Reference Number:</strong> {{ payment.bursary_reference_number }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Bursary Payment Date:</strong> {{ payment.bursary_payment_date }}</p>
+                        <p class="mb-2 text-gray-700"><strong>Bursary Contact Information:</strong> {{ payment.bursary_contact_information }}</p>
+                        {% endif %}
+                        <a href="{% url 'accounts:payment_update' payment.pk %}" class="mt-2 inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Update</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No payment information found.</p>
+                    <a href="#" class="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:bg-green-700">Create Payment</a>
+                {% endif %}
             </div>
         </div>
         <button id="editBtn" class="px-4 py-2 mt-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">Edit Details</button>

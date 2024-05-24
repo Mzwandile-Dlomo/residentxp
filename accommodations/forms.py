@@ -1,5 +1,10 @@
+import base64
 from django import forms
-from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, VisitorLog
+from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, VisitorLog, LeaseAgreement, Payment
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+import re
+
 
 class InspectionRequestForm(forms.ModelForm):
     class Meta:
@@ -79,3 +84,95 @@ class VisitorLogForm(forms.ModelForm):
         widgets = {
             'visit_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
+
+
+class LeaseAgreementForm(forms.ModelForm):
+
+    class Meta:
+        model = LeaseAgreement
+        fields = ['semester', 'payment_frequency', 'signature']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['signature'].widget.attrs.update({'class': 'signature-field'})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        signature_data = self.data.get('signature')
+        print(f"Received signature data: {signature_data}")
+
+        if not signature_data:
+            raise ValidationError("Lease agreement must be signed before saving.")
+        else:
+            # Extract the Base64 data using a regular expression
+            base64_data = re.search(r'base64,(.*)', signature_data).group(1)
+            
+            # Create a ContentFile with the Base64-encoded data
+            signature_file = ContentFile(base64.b64decode(base64_data))
+            
+            # Assign the signature file to the 'signature' field
+            cleaned_data['signature'] = signature_file
+
+        return cleaned_data
+
+
+
+class RentalAgreementForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Populate landlord choices from available rooms and buildings
+        room_choices = [(room.building.name, room.building.name) for room in Room.objects.all()]
+        self.fields['landlord'].widget.choices = room_choices
+
+        # Populate rent amount choices similarly
+        rent_amount_choices = []
+        for room in Room.objects.all():
+            rent_amount = room.get_rent_amount()
+            rent_amount_choices.append((room.building.name, f"{rent_amount:.2f}"))
+        self.fields['rent_amount'].widget.choices = rent_amount_choices
+    
+    class Meta:
+        model = LeaseAgreement
+        fields = ['landlord', 'rent_amount', 'payment_frequency', 'start_date', 'end_date']
+
+
+
+class PaymentMethodForm(forms.ModelForm):
+    
+    class Meta:
+        model = Payment
+        fields = [
+            'lease_agreement', 'amount', 'payment_date', 'paid_by_bursary', 'is_cash_payment',
+            'cash_payment_reference', 'cash_payment_date', 'cash_payment_method',
+            'bursary', 'bursary_name', 'bursary_reference_number', 'bursary_payment_date',
+            'bursary_contact_information',
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        paid_by_bursary = cleaned_data.get('paid_by_bursary')
+        is_cash_payment = cleaned_data.get('is_cash_payment')
+
+        if paid_by_bursary and is_cash_payment:
+            raise forms.ValidationError("A payment cannot be both cash and bursary.")
+
+        if is_cash_payment:
+            if not cleaned_data.get('cash_payment_reference'):
+                self.add_error('cash_payment_reference', "Cash payment reference must be provided for cash payments.")
+            if not cleaned_data.get('cash_payment_date'):
+                self.add_error('cash_payment_date', "Cash payment date must be provided for cash payments.")
+            if not cleaned_data.get('cash_payment_method'):
+                self.add_error('cash_payment_method', "Cash payment method must be provided for cash payments.")
+        
+        if paid_by_bursary:
+            if not cleaned_data.get('bursary'):
+                self.add_error('bursary', "Bursary must be selected for bursary payments.")
+            if not cleaned_data.get('bursary_reference_number'):
+                self.add_error('bursary_reference_number', "Bursary reference number must be provided for bursary payments.")
+            if not cleaned_data.get('bursary_payment_date'):
+                self.add_error('bursary_payment_date', "Bursary payment date must be provided for bursary payments.")
+
+        return cleaned_data
