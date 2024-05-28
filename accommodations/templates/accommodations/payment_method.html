@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Payment Method</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="fieldWrapper">
+      {{ form.amount.errors }}
+      <label for="{{ form.amount.id_for_label }}">Amount:</label>
+      {{ form.amount }}
+    </div>
+    <div class="fieldWrapper">
+      {{ form.payment_date.errors }}
+      <label for="{{ form.payment_date.id_for_label }}">Payment Date:</label>
+      {{ form.payment_date }}
+    </div>
+    <div class="fieldWrapper">
+      {{ form.paid_by_bursary.errors }}
+      <label for="{{ form.paid_by_bursary.id_for_label }}">Paid by Bursary:</label>
+      {{ form.paid_by_bursary }}
+    </div>
+    <div class="fieldWrapper">
+      {{ form.is_cash_payment.errors }}
+      <label for="{{ form.is_cash_payment.id_for_label }}">Cash Payment:</label>
+      {{ form.is_cash_payment }}
+    </div>
+    {% if form.is_cash_payment.value %}
+      <div class="fieldWrapper">
+        {{ form.cash_payment_reference.errors }}
+        <label for="{{ form.cash_payment_reference.id_for_label }}">Cash Payment Reference:</label>
+        {{ form.cash_payment_reference }}
+      </div>
+    {% elif form.paid_by_bursary.value %}
+      <div class="fieldWrapper">
+        {{ form.bursary_name.errors }}
+        <label for="{{ form.bursary_name.id_for_label }}">Bursary Name:</label>
+        {{ form.bursary_name }}
+      </div>
+      <div class="fieldWrapper">
+        {{ form.bursary_reference_number.errors }}
+        <label for="{{ form.bursary_reference_number.id_for_label }}">Bursary Reference Number:</label>
+        {{ form.bursary_reference_number }}
+      </div>
+    {% endif %}
+    <button type="submit">Submit Payment Method</button>
+  </form>
+{% endblock %}

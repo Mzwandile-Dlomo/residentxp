@@ -1,9 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models import Q
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-import datetime
+from django.core.exceptions import ValidationError
+from datetime import date
+
 
 CustomUser = get_user_model()  
 
@@ -19,6 +18,9 @@ class Building(models.Model):
             ('female', 'Female'),
         ),
     )
+
+    rent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=3800.00)
+
     
     def __str__(self):
         return self.name
@@ -39,6 +41,9 @@ class Room(models.Model):
                 ('double_ensuite', 'Double Ensuite'),
             ),
         )
+
+    ensuite_additional_rent = models.DecimalField(max_digits=10, decimal_places=2, default=800.0)
+
     
     
     def __str__(self):
@@ -47,6 +52,12 @@ class Room(models.Model):
     def has_available_beds(self):
         return self.capacity > self.occupants.count()
 
+    def get_rent_amount(self):
+        base_rent = self.building.rent_amount
+        if self.room_type.endswith('ensuite'):
+            return base_rent + self.ensuite_additional_rent
+        return base_rent
+    
 
 
 class RoomInspectionRequest(models.Model):
@@ -157,17 +168,54 @@ class MaintenanceRequest(models.Model):
             return f"Maintenance Request: {self.description} in {self.location} by {self.student.email}"
 
 
-class RentalAgreement(models.Model):
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='rental_agreements')
+class LeaseAgreement(models.Model):
+    SEMESTER_CHOICES = [
+        ('first', 'First Semester'),
+        ('second', 'Second Semester'),
+        ('both', 'Both Semesters'),
+    ]
+
+    PAYMENT_FREQUENCY_CHOICES = [
+        ('monthly', 'Monthly'),
+        ('quarterly', 'Quarterly')
+    ]
+    
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='lease_agreements')
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='lease_agreements', null=True)
     landlord = models.CharField(max_length=100)
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_frequency = models.CharField(max_length=20, choices=[('monthly', 'Monthly'), ('quarterly', 'Quarterly')])
+    semester = models.CharField(max_length=20, choices=SEMESTER_CHOICES, default='both')
+    payment_frequency = models.CharField(max_length=20, choices=PAYMENT_FREQUENCY_CHOICES, default='monthly')
     start_date = models.DateField()
     end_date = models.DateField()
+    signature = models.ImageField(upload_to='signatures/', null=True, blank=True)
     agreement_signed = models.BooleanField(default=False)
+    security_deposit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    lease_terms = models.TextField(null=True, blank=True)  # Add any specific lease terms and conditions here
 
     def __str__(self):
-        return f"Rental Agreement for {self.student.email}"
+        return f"Lease Agreement for {self.student.email}"
+
+    def save(self, *args, **kwargs):
+        if not self.agreement_signed:
+            raise ValidationError("Lease agreement must be signed before saving.")
+        if not self.start_date or not self.end_date:
+            current_year = date.today().year
+            if self.semester == 'first':
+                self.start_date = date(current_year, 1, 1)
+                self.end_date = date(current_year, 5, 31)
+            elif self.semester == 'second':
+                self.start_date = date(current_year, 8, 1)
+                self.end_date = date(current_year, 12, 31)
+            elif self.semester == 'both':
+                self.start_date = date(current_year, 1, 1)
+                self.end_date = date(current_year, 12, 31)
+        super().save(*args, **kwargs)
+        # Approve the room reservation associated with this lease agreement
+        room_reservation = RoomReservation.objects.filter(student=self.student, room=self.room).first()
+        if room_reservation:
+            room_reservation.status = 'approved'
+            room_reservation.save()
 
 
 class Bursary(models.Model):
@@ -180,17 +228,38 @@ class Bursary(models.Model):
     
 
 class Payment(models.Model):
-    rental_agreement = models.ForeignKey(RentalAgreement, on_delete=models.CASCADE, related_name='payments')
+    lease_agreement = models.ForeignKey(LeaseAgreement, on_delete=models.CASCADE, related_name='payments', default=None)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateField()
     paid_by_bursary = models.BooleanField(default=False)
     is_cash_payment = models.BooleanField(default=False)
     bursary = models.ForeignKey(Bursary, on_delete=models.SET_NULL, null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payments')
-    payment_method =  ('cash paying', 'bursary')
+
+    # Cash Payment Details
+    cash_payment_reference = models.CharField(max_length=100, null=True, blank=True)
+    cash_payment_date = models.DateField(null=True, blank=True)
+    cash_payment_method = models.CharField(max_length=50, null=True, blank=True)
+
+    # Bursary Payment Details
+    bursary_name = models.CharField(max_length=100, null=True, blank=True)
+    bursary_reference_number = models.CharField(max_length=50, null=True, blank=True)
+    bursary_payment_date = models.DateField(null=True, blank=True)
+    bursary_contact_information = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return f"Payment of {self.amount} for {self.rental_agreement}"
+        return f"Payment of {self.amount} for {self.lease_agreement}"
+
+    def save(self, *args, **kwargs):
+        # Ensure the appropriate fields are filled based on the payment type
+        if self.is_cash_payment:
+            if not self.cash_payment_reference:
+                raise ValueError("Cash payment reference must be provided for cash payments.")
+        if self.paid_by_bursary:
+            if not self.bursary or not self.bursary_reference_number:
+                raise ValueError("Bursary and bursary reference number must be provided for bursary payments.")
+        super().save(*args, **kwargs)
+
 
 
 class RoomReservation(models.Model):
@@ -244,46 +313,11 @@ class StudentAllocation(models.Model):
         return f"{self.student.email} - {self.room.room_number}"
 
 
-@receiver(post_save, sender=StudentAllocation)
-def update_room_occupants(sender, instance, **kwargs):
-    instance.room.occupants.add(instance.student)
 
 
 
-# class MaintenanceRequest(models.Model):
-#     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='maintenance_requests')
-#     requested_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='maintenance_requests')
-#     request_date = models.DateField(auto_now_add=True)
-#     description = models.TextField()
-#     status = models.CharField(max_length=20, choices=[
-#         ('pending', 'Pending'),
-#         ('in_progress', 'In Progress'),
-#         ('completed', 'Completed'),
-#     ], default='pending')
-
-#     def __str__(self):
-#         return f"Maintenance Request for {self.room.room_number} on {self.request_date}"
 
 
-# class Room(models.Model):
-#     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms')
-#     room_number = models.CharField(max_length=3)
-#     occupants = models.ManyToManyField(CustomUser, related_name='rooms', blank=True)
-#     capacity = models.PositiveIntegerField(default=1)
-
-#     room_type = models.CharField(
-#             max_length=20,
-#             choices=(
-#                 ('single', 'Single'),
-#                 ('single_ensuite', 'Single Ensuite'),
-#                 ('double', 'Double'),
-#                 ('double_ensuite', 'Double Ensuite'),
-#             ),
-#         )
-    
-    
-#     def __str__(self):
-#         return f"{self.building.name} - {self.room_number}"
 
 
 

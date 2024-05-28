@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="flex justify-center px-4 py-8">
+    <div class="w-full md:w-2/3 lg:w-1/2">
+        <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-lg shadow-md p-8">
+            <h1 class="text-2xl font-bold text-white mb-4 border-b-2 border-white pb-2">Create Rental Agreement</h1>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="{% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-800{% else %}bg-gray-100 text-gray-800{% endif %} p-4 rounded-md mb-4">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <ul class="errorlist nonfield">
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% for field in form %}
+                <div class="mb-4">
+                    <label class="block text-white font-bold mb-2" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {% if field.name == 'landlord' or field.name == 'rent_amount' %}
+                    <select name="{{ field.name }}" class="block appearance-none w-full bg-gray-100 border border-gray-200 text-gray-700 py-3 px-4 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        {% for choice in field.field.widget.choices %}
+                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endfor %}
+                    </select>
+                    {% elif field.name == 'signature' %}
+                        <div id="signature-pad-container" class="mb-4">
+                            <canvas id="signature-pad" class="border border-gray-300 w-full h-32"></canvas>
+                            <button type="button" id="clear-signature" class="px-2 py-1 rounded-md bg-red-500 text-white font-semibold hover:bg-red-400 transition-colors duration-300 mt-2">Clear</button>
+                        </div>
+                        <input type="hidden" name="signature" id="signature-data">
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.errors %}
+                    <div class="text-red-500 mt-1">
+                        {% for error in field.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="flex justify-between">
+                    <button type="button" onclick="history.back()" class="px-4 py-2 rounded-md bg-red-500 text-white font-semibold hover:bg-red-400 transition-colors duration-300">
+                        Back
+                    </button>
+                    <button type="submit" class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300">
+                        Submit Lease Agreement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+<script>
+    var canvas = document.getElementById('signature-pad');
+    var signaturePad = new SignaturePad(canvas);
+    var signatureDataInput = document.getElementById('signature-data');
+    var clearButton = document.getElementById('clear-signature');
+
+    // Ensure the canvas is the correct size
+    function resizeCanvas() {
+        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    document.querySelector('form').addEventListener('submit', function(event) {
+        if (signaturePad.isEmpty()) {
+            alert('Please provide a signature.');
+            event.preventDefault();
+        } else {
+            var signatureData = signaturePad.toDataURL('image/png');
+            signatureDataInput.value = signatureData;
+        }
+    });
+
+    clearButton.addEventListener('click', function() {
+        signaturePad.clear();
+    });
+</script>
+{% endblock %}

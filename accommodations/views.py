@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm, MaintenanceRequestForm
+from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm, MaintenanceRequestForm, PaymentMethodForm
 from django.contrib import messages
 
 
@@ -130,13 +130,41 @@ def log_visitor_view(request):
 def maintainance_request_view(request):
     if request.method == 'POST':
         form = MaintenanceRequestForm(request.POST, request.FILES)
+
+        print(form)
         if form.is_valid():
             maintenance_request = form.save()
             messages.success(request, "Maintainance submitted!")
             return redirect('core:home')
     else:
+        messages.error(request, "Please fill out the maintenance request form below.")
         form = MaintenanceRequestForm()
     return render(request, 'accommodations/maintainance.html', {'form': form})
+
+
+@login_required
+def payment_method_view(request):
+    if request.method == 'POST':
+        form = PaymentMethodForm(request.POST)
+        if form.is_valid():
+            payment = form.save(commit=False)
+            payment.rental_agreement = request.user.rental_agreements.first()
+            payment.user = request.user
+            payment.save()
+            return redirect('success_url')
+    else:
+        form = PaymentMethodForm()
+
+    return render(request, 'payment_method.html', {'form': form})
+
+
+
+
+
+
+
+
+
 
 # --------------------------------------------------------------------------------------------------------
 @staff_member_required
