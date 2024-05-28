@@ -29,15 +29,17 @@ class MaintenanceRequestForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(MaintenanceRequestForm, self).clean()
-        room = cleaned_data.get('room')
         location = cleaned_data.get('location')
+        room = cleaned_data.get('room')
 
+        
         # Ensure either room or location is provided, but not both
-        if room and location:
-            raise forms.ValidationError("Please specify either a room or a common area location, not both.")
+        if not room and location == 'room':
+            raise forms.ValidationError("Please specify the room for the maintainance.")
         elif not room and not location:
             raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request.")
-
+        elif location is not 'room' and room:
+            raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request.")
         return cleaned_data
 
 

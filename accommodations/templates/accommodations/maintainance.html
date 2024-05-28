@@ -21,11 +21,11 @@
                     </label>
                     {{ field }}
                     {% if field.errors %}
-                    <div class="text-red-500 mt-1">
-                        {% for error in field.errors %}
-                        {{ error }}
-                        {% endfor %}
-                    </div>
+                        <div class="text-red-500 mt-1">
+                            {% for error in field.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
                     {% endif %}
                 </div>
                 {% endfor %}

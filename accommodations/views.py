@@ -130,11 +130,14 @@ def log_visitor_view(request):
 def maintainance_request_view(request):
     if request.method == 'POST':
         form = MaintenanceRequestForm(request.POST, request.FILES)
+
+        print(form)
         if form.is_valid():
             maintenance_request = form.save()
             messages.success(request, "Maintainance submitted!")
             return redirect('core:home')
     else:
+        messages.error(request, "Please fill out the maintenance request form below.")
         form = MaintenanceRequestForm()
     return render(request, 'accommodations/maintainance.html', {'form': form})
 
