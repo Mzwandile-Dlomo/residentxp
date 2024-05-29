@@ -135,7 +135,7 @@ class MaintenanceRequest(models.Model):
     room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True, related_name='maintenance_requests')
 
     LOCATION_CHOICES = (
-        ('room', 'Room'),  # Indicate maintenance request is for a specific room
+        ('room', 'Room'),
         ('laundry_room', 'Laundry Room'),
         ('tv_room', 'TV Room'),
         ('stairs', 'Stairs'),
@@ -163,9 +163,9 @@ class MaintenanceRequest(models.Model):
 
     def __str__(self):
         if self.location == 'room':
-            return f"Maintenance Request: {self.description} in {self.room} by {self.student.email}"
+            return f"Maintenance Request: {self.description} in {self.room} by {self.requested_by.email}"
         else:
-            return f"Maintenance Request: {self.description} in {self.location} by {self.student.email}"
+            return f"Maintenance Request: {self.description} in {self.location} by {self.requested_by.email}"
 
 
 class LeaseAgreement(models.Model):

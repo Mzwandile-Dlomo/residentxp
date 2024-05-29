@@ -1,76 +1,111 @@
+<!-- form_template.html -->
 {% extends 'base.html' %}
 
 {% block content %}
 <div class="flex justify-center px-4 py-8">
     <div class="w-full md:w-2/3 lg:w-1/2">
-        <div class="bg-gradient-to-r from-orange-500 to-yellow-600 rounded-lg shadow-md p-8">
-            <h1 class="text-2xl font-bold text-white mb-4 border-b-2 border-white pb-2">File a Maintenance Request</h1>
+        <div class="bg-gradient-to-r from-blue-500 to-teal-600 rounded-lg shadow-md p-8">
+            <h1 class="text-2xl font-bold text-white mb-4 border-b-2 border-white pb-2">Maintenance Request Form</h1>
             {% if messages %}
                 {% for message in messages %}
-                <div class="{% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-800{% else %}bg-gray-100 text-gray-800{% endif %} p-4 rounded-md mb-4">
-                    {{ message }}
-                </div>
+                    <div class="{% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-800{% else %}bg-gray-100 text-gray-800{% endif %} p-4 rounded-md mb-4">
+                        {{ message }}
+                    </div>
                 {% endfor %}
             {% endif %}
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% for field in form %}
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-2" for="{{ field.id_for_label }}">
-                        {{ field.label }}
+                    <label class="block text-white font-bold mb-2" for="{{ form.location.id_for_label }}">
+                        {{ form.location.label }}
                     </label>
-                    {{ field }}
-                    {% if field.errors %}
+                    {{ form.location }}
+                    {% if form.location.errors %}
                         <div class="text-red-500 mt-1">
-                            {% for error in field.errors %}
-                            {{ error }}
+                            {% for error in form.location.errors %}
+                                {{ error }}
                             {% endfor %}
                         </div>
                     {% endif %}
                 </div>
-                {% endfor %}
+                <div class="mb-4" id="div_id_room" style="display: none;">
+                    <label class="block text-white font-bold mb-2" for="{{ form.room.id_for_label }}">
+                        {{ form.room.label }}
+                    </label>
+                    {{ form.room }}
+                    {% if form.room.errors %}
+                        <div class="text-red-500 mt-1">
+                            {% for error in form.room.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white font-bold mb-2" for="{{ form.description.id_for_label }}">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-red-500 mt-1">
+                            {% for error in form.description.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white font-bold mb-2" for="{{ form.urgency.id_for_label }}">
+                        {{ form.urgency.label }}
+                    </label>
+                    {{ form.urgency }}
+                    {% if form.urgency.errors %}
+                        <div class="text-red-500 mt-1">
+                            {% for error in form.urgency.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white font-bold mb-2" for="{{ form.picture.id_for_label }}">
+                        {{ form.picture.label }}
+                    </label>
+                    {{ form.picture }}
+                    {% if form.picture.errors %}
+                        <div class="text-red-500 mt-1">
+                            {% for error in form.picture.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
                 <button type="submit" class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300">
-                    Submit Request
+                    Submit
                 </button>
             </form>
-        </div>
-        <div class="bg-black bg-opacity-4 rounded-lg shadow-md p-8 mt-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-white">Your Maintenance Requests</h2>
-                <button id="toggleButton" class="text-white hover:text-gray-300 transition-colors duration-300">
-                    <svg id="toggleIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-            </div>
-            <ul id="requestsContainer" class="text-lg text-gray-200 space-y-4 hidden">
-                {% for request in requests %}
-                <li class="bg-green-900 bg-opacity-10 rounded-md p-4">
-                    <h3 class="text-xl font-semibold text-white">{{ request.description }}</h3>
-                    <p class="text-gray-200">{{ request.location }}</p>
-                    <p class="text-gray-400"><span class="font-semibold">Urgency:</span> {{ request.get_urgency_display }}</p>
-                    <p class="text-gray-400"><span class="font-semibold">Status:</span> {{ request.get_status_display }}</p>
-                    <p class="text-gray-400"><span class="font-semibold">Submitted on:</span> {{ request.created_at }}</p>
-                    {% if request.image %}
-                    <p class="text-gray-400"><span class="font-semibold">Image:</span> <a href="{{ request.image.url }}" target="_blank" class="text-blue-500 hover:underline">View Image</a></p>
-                    {% endif %}
-                </li>
-                {% empty %}
-                <li class="text-gray-400">You have not submitted any maintenance requests yet.</li>
-                {% endfor %}
-            </ul>
         </div>
     </div>
 </div>
 
 <script>
-    const requestsContainer = document.getElementById('requestsContainer');
-    const toggleButton = document.getElementById('toggleButton');
-    const toggleIcon = document.getElementById('toggleIcon');
+document.addEventListener('DOMContentLoaded', function () {
+    const locationField = document.querySelector('#id_location');
+    const roomFieldDiv = document.querySelector('#div_id_room');
 
-    toggleButton.addEventListener('click', () => {
-        requestsContainer.classList.toggle('hidden');
-        toggleIcon.classList.toggle('rotate-180');
-    });
+    function toggleRoomField() {
+        if (locationField.value === 'room') {
+            roomFieldDiv.style.display = 'block';
+        } else {
+            roomFieldDiv.style.display = 'none';
+        }
+    }
+
+    // Initial check
+    toggleRoomField();
+
+    // Check on change
+    locationField.addEventListener('change', toggleRoomField);
+});
 </script>
 {% endblock %}
