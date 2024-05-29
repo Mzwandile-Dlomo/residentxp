@@ -37,8 +37,8 @@ class MaintenanceRequestForm(forms.ModelForm):
         if not room and location == 'room':
             raise forms.ValidationError("Please specify the room for the maintainance.")
         elif not room and not location:
-            raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request.")
-        elif location is not 'room' and room:
+            raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request1.")
+        elif location != 'room' and room:
             raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request.")
         return cleaned_data
 
