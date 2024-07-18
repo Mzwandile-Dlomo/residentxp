@@ -20,6 +20,9 @@ from django.views.generic.edit import UpdateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accommodations.forms import LeaseAgreementForm
 from accommodations.models import LeaseAgreement
+from django.contrib import messages
+
+
 
 
 class RentalAgreementCreateView(LoginRequiredMixin, CreateView):
@@ -239,6 +242,11 @@ def login_view(request):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
+
+            if not CustomUser.objects.filter(email=email).exists():
+                messages.error(request, "No account found with this email address.")
+                return render(request, 'accounts/login.html', {'form': form})
+
             user = authenticate(request, email=email, password=password)
 
             if user is not None:
