@@ -314,6 +314,26 @@ class StudentAllocation(models.Model):
 
 
 
+class Survey(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    active = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class Choice(models.Model):
+    survey = models.ForeignKey(Survey, related_name='choices', on_delete=models.CASCADE)
+    text = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.text
+
+class Vote(models.Model):
+    choice = models.ForeignKey(Choice, related_name='votes', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 

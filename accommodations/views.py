@@ -1,6 +1,6 @@
 # accommodations/views.py
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint
+from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, Survey, Choice, Vote
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm, MaintenanceRequestForm, PaymentMethodForm
@@ -175,7 +175,18 @@ def wellness_activities(request):
     return render(request, 'accommodations/wellness_activities.html')
 
 
-
+def feedback_survey(request):
+    current_survey = Survey.objects.filter(active=True).first()
+    survey_history = Survey.objects.filter(active=False).order_by('-created_at')
+    if request.method == 'POST' and current_survey:
+        choice_id = request.POST.get('choice')
+        choice = Choice.objects.get(id=choice_id)
+        Vote.objects.create(choice=choice)
+        return redirect('feedback_survey')
+    return render(request, 'accommodations/feedback_survey.html', {
+        'current_survey': current_survey,
+        'survey_history': survey_history,
+    })
 
 
 

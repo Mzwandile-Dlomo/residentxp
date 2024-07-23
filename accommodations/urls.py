@@ -27,4 +27,7 @@ urlpatterns = [
     path('activities/social/', views.social_activities, name='social_activities'),
     path('activities/educational/', views.educational_activities, name='educational_activities'),
     path('activities/wellness/', views.wellness_activities, name='wellness_activities'),
+
+    path('survey/', views.feedback_survey, name='feedback_survey'),
+
 ]
