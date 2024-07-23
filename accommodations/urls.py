@@ -21,4 +21,10 @@ urlpatterns = [
 
 
     path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_detail'),
+
+    path('activities/', views.activities, name='activities'),
+
+    path('activities/social/', views.social_activities, name='social_activities'),
+    path('activities/educational/', views.educational_activities, name='educational_activities'),
+    path('activities/wellness/', views.wellness_activities, name='wellness_activities'),
 ]

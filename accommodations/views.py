@@ -162,6 +162,17 @@ def payment_method_view(request):
 
 
 
+def activities(request):
+    return render(request, 'accommodations/resident_activities.html')
+
+def social_activities(request):
+    return render(request, 'accommodations/social_activities.html')
+
+def educational_activities(request):
+    return render(request, 'accommodations/educational_activities.html')
+
+def wellness_activities(request):
+    return render(request, 'accommodations/wellness_activities.html')
 
 
 
