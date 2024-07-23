@@ -1,54 +1,52 @@
-<!-- log_visitor.html -->
+<!-- visitor.html -->
 {% extends 'base.html' %}
 {% block content %}
-<div class="flex justify-center px-4 py-8">
-    <div class="w-full md:w-2/3 lg:w-1/2">
-        <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-lg shadow-md p-8">
-            <h1 class="text-2xl font-bold text-white mb-4 border-b-2 border-white pb-2">Log a Visitor</h1>
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="{% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-800{% else %}bg-gray-100 text-gray-800{% endif %} p-4 rounded-md mb-4">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-            <form method="post">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="mb-4">
-                        <label class="block text-white font-bold mb-2" for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                        </label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="text-red-500 mt-1">
-                                {% for error in field.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                <button type="submit" class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300">
-                    Log Visitor
-                </button>
-            </form>
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-lg shadow-md p-6 lg:p-8">
+        <h1 class="text-2xl lg:text-3xl font-bold text-white mb-4 border-b-2 border-white pb-2">Log a Visitor</h1>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-800{% else %}bg-gray-100 text-gray-800{% endif %} p-4 rounded-md mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-4">
+                    <label class="block text-white font-bold mb-2" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-red-500 mt-1">
+                            {% for error in field.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300">
+                Log Visitor
+            </button>
+        </form>
 
-            <h2 class="text-xl font-bold text-white mt-8 mb-4">Your Visitors</h2>
-            <button class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300" onclick="toggleVisitorLogs()">Toggle Visitor Logs</button>
-            <div id="visitorLogs" class="hidden mt-4">
-                {% for log in visitor_logs %}
-                    <div class="bg-white bg-opacity-10 rounded-md p-4 mt-4">
-                        <p class="text-white"><span class="font-semibold">Visitor Name:</span> {{ log.visitor_name }}</p>
-                        <p class="text-white"><span class="font-semibold">Contact:</span> {{ log.visitor_contact }}</p>
-                        <p class="text-white"><span class="font-semibold">Purpose:</span> {{ log.visit_purpose }}</p>
-                        <p class="text-white"><span class="font-semibold">Visit Date:</span> {{ log.visit_date }}</p>
-                        <p class="text-white"><span class="font-semibold">Logged At:</span> {{ log.created_at }}</p>
-                    </div>
-                {% empty %}
-                    <p class="text-gray-400 mt-4">No visitors logged.</p>
-                {% endfor %}
-            </div>
+        <h2 class="text-xl lg:text-2xl font-bold text-white mt-8 mb-4">Your Visitors</h2>
+        <button class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300" onclick="toggleVisitorLogs()">Toggle Visitor Logs</button>
+        <div id="visitorLogs" class="hidden mt-4">
+            {% for log in visitor_logs %}
+                <div class="bg-white bg-opacity-10 rounded-md p-4 mt-4">
+                    <p class="text-white"><span class="font-semibold">Visitor Name:</span> {{ log.visitor_name }}</p>
+                    <p class="text-white"><span class="font-semibold">Contact:</span> {{ log.visitor_contact }}</p>
+                    <p class="text-white"><span class="font-semibold">Purpose:</span> {{ log.visit_purpose }}</p>
+                    <p class="text-white"><span class="font-semibold">Visit Date:</span> {{ log.visit_date }}</p>
+                    <p class="text-white"><span class="font-semibold">Logged At:</span> {{ log.created_at }}</p>
+                </div>
+            {% empty %}
+                <p class="text-gray-400 mt-4">No visitors logged.</p>
+            {% endfor %}
         </div>
     </div>
 </div>

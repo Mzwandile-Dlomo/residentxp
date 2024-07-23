@@ -1,32 +1,38 @@
-<!-- room_reservation.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="flex justify-center px-4 py-8">
-    <div class="w-full md:w-2/3 lg:w-1/2">
-        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md p-8">
-            <h2 class="text-2xl font-bold text-white mb-4">Reserve a Room</h2>
-            <form method="post">
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md p-6 lg:p-8">
+            <h2 class="text-2xl lg:text-3xl font-bold text-white mb-6">Reserve a Room</h2>
+            <form method="post" class="space-y-6">
                 {% csrf_token %}
-                <div class="mb-4">
-                    <label for="room" class="text-lg text-gray-200 block mb-2">Room:</label>
-                    <select name="room" id="room" class="rounded-md p-2 border border-gray-300 text-gray-800 bg-white focus:outline-none focus:border-blue-500" required>
-                        {% for room in rooms %}
-                            <option value="{{ room.id }}">{{ room }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="room" class="text-lg text-gray-200 block mb-2">Room:</label>
+                        <select name="room" id="room" class="w-full rounded-md p-2 border border-gray-300 text-gray-800 bg-white focus:outline-none focus:border-blue-500 transition duration-300" required>
+                            {% for room in rooms %}
+                                <option value="{{ room.id }}">{{ room }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="check_in_date" class="text-lg text-gray-200 block mb-2">Check-in Date:</label>
+                        <input type="date" name="check_in_date" id="check_in_date" class="w-full rounded-md p-2 border border-gray-300 text-gray-800 bg-white focus:outline-none focus:border-blue-500 transition duration-300" required>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="check_in_date" class="text-lg text-gray-200 block mb-2">Check-in Date:</label>
-                    <input type="date" name="check_in_date" id="check_in_date" class="rounded-md p-2 border border-gray-300 text-gray-800 bg-white focus:outline-none focus:border-blue-500" required>
+                <div class="flex justify-center md:justify-start">
+                    <button type="submit" class="bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-gray-800 transition duration-300 transform hover:scale-105">
+                        Reserve Room
+                    </button>
                 </div>
-                <button type="submit" class="bg-gray-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-gray-800">Reserve Room</button>
             </form>
+            
             <!-- Display form errors -->
             {% if form.errors %}
-            <div class="mt-4 bg-red-500 text-white p-4 rounded-md">
-                <h3 class="font-semibold">Form Errors:</h3>
-                <ul>
+            <div class="mt-6 bg-red-500 text-white p-4 rounded-md animate-pulse">
+                <h3 class="font-semibold text-lg mb-2">Form Errors:</h3>
+                <ul class="list-disc list-inside">
                     {% for field, errors in form.errors.items %}
                         {% for error in errors %}
                             <li>{{ field|title }}: {{ error }}</li>
