@@ -1,6 +1,6 @@
 import base64
 from django import forms
-from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, VisitorLog, LeaseAgreement, Payment
+from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, VisitorLog, LeaseAgreement, Payment, Survey, Choice
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 import re
@@ -12,6 +12,21 @@ class InspectionRequestForm(forms.ModelForm):
         fields = ['inspection_date', 'room']
         widgets = {
             'inspection_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+class UpdateInspectionRequestForm(forms.ModelForm):
+    class Meta:
+        model = RoomInspectionRequest
+        fields = ['status', 'completed']
+        widgets = {
+            'status': forms.Select(choices=[
+                ('Pending', 'Pending'),
+                ('In Progress', 'In Progress'),
+                ('Done', 'Done'),
+                ('Approved', 'Approved'),
+                ('Rejected', 'Rejected'),
+            ])
         }
 
 
@@ -178,3 +193,19 @@ class PaymentMethodForm(forms.ModelForm):
                 self.add_error('bursary_payment_date', "Bursary payment date must be provided for bursary payments.")
 
         return cleaned_data
+    
+
+class SurveyForm(forms.ModelForm):
+    choices = forms.CharField(widget=forms.Textarea, help_text="Enter each choice on a new line.")
+
+    class Meta:
+        model = Survey
+        fields = ['title', 'description']
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        for choice_text in self.cleaned_data['choices'].splitlines():
+            Choice.objects.create(survey=instance, text=choice_text)
+        return instance

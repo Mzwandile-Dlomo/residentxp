@@ -1,10 +1,12 @@
 # accommodations/views.py
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Building, Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, Survey, Choice, Vote
-from django.contrib.auth.decorators import login_required
+from .models import Building, Room, RoomInspectionRequest, RoomInspectionReport, MaintenanceRequest, RoomReservation, Complaint, Survey, Choice, Vote
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm, MaintenanceRequestForm, PaymentMethodForm
+from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm, MaintenanceRequestForm, PaymentMethodForm, UpdateInspectionRequestForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils import timezone
+
 
 
 # Create your views here.
@@ -39,11 +41,9 @@ def request_inspection(request, room_id):
     room = get_object_or_404(Room, pk=room_id)
 
     if request.method == 'POST':
-        # Get the inspection date and type from the form data
         inspection_date = request.POST.get('inspection_date')
         inspection_type = request.POST.get('inspection_type')
 
-        # Create a new inspection request with the selected date and type
         inspection_request = RoomInspectionRequest.objects.create(
             room=room,
             requested_by=request.user,
@@ -52,9 +52,60 @@ def request_inspection(request, room_id):
         )
         inspection_request.save()
 
-        # Redirect back to the room detail page or another appropriate page
         return redirect('accommodations:room_detail', room_id=room.id)
+    return render(request, 'accommodations/request_inspection.html', {'room': room})
+
+
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def inspection_requests_list(request):
+    inspection_requests = RoomInspectionRequest.objects.all().order_by('-requested_at')
+    return render(request, 'accommodations/inspection_requests.html', {'inspection_requests': inspection_requests})
+
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def inspection_request_management(request, request_id):
+    inspection_request = get_object_or_404(RoomInspectionRequest, pk=request_id)
     
+    if request.method == 'POST':
+        form = UpdateInspectionRequestForm(request.POST, instance=inspection_request)
+        if form.is_valid():
+            form.save()
+            
+            # Create an inspection report if marking as done
+            if inspection_request.status == 'Done' and not RoomInspectionReport.objects.filter(inspection_request=inspection_request).exists():
+                RoomInspectionReport.objects.create(
+                    inspection_request=inspection_request,
+                    inspector=request.user,
+                    report_details=request.POST.get('report_details', '')
+                )
+            
+            return redirect('accommodations:inspection_requests')
+    else:
+        form = UpdateInspectionRequestForm(instance=inspection_request)
+    
+    return render(request, 'accommodations/inspection_request_management.html', {'form': form, 'inspection_request': inspection_request})
+
+# @user_passes_test(lambda u: u.is_staff or u.is_superuser)
+# def update_inspection_request(request, request_id):
+#     inspection_request = get_object_or_404(RoomInspectionRequest, pk=request_id)
+    
+#     if request.method == 'POST':
+#         form = UpdateInspectionRequestForm(request.POST, instance=inspection_request)
+#         if form.is_valid():
+#             form.save()
+            
+#             # Create an inspection report if marking as done
+#             if inspection_request.status == 'Done' and not RoomInspectionReport.objects.filter(inspection_request=inspection_request).exists():
+#                 RoomInspectionReport.objects.create(
+#                     inspection_request=inspection_request,
+#                     inspector=request.user,
+#                     report_details=request.POST.get('report_details', '')
+#                 )
+            
+#             return redirect('accommodations:inspection_requests')
+#     else:
+#         form = UpdateInspectionRequestForm(instance=inspection_request)
+    
+#     return render(request, 'accommodations/update_inspection_request.html', {'form': form, 'inspection_request': inspection_request})
 
 @login_required
 def room_reservation_view(request):
@@ -175,26 +226,72 @@ def wellness_activities(request):
     return render(request, 'accommodations/wellness_activities.html')
 
 
+
+@login_required
 def feedback_survey(request):
     current_survey = Survey.objects.filter(active=True).first()
-    survey_history = Survey.objects.filter(active=False).order_by('-created_at')
-    if request.method == 'POST' and current_survey:
-        choice_id = request.POST.get('choice')
-        choice = Choice.objects.get(id=choice_id)
-        Vote.objects.create(choice=choice)
-        return redirect('feedback_survey')
-    return render(request, 'accommodations/feedback_survey.html', {
+    survey_history = Survey.objects.filter(active=False).order_by('-closed_at')
+    user_vote = None
+
+    if current_survey:
+        user_vote = Vote.objects.filter(user=request.user, choice__survey=current_survey).first()
+
+    if request.method == 'POST':
+        if 'title' in request.POST:  # Creating a new survey
+            title = request.POST['title']
+            description = request.POST['description']
+            choices = request.POST['choices'].split('\n')
+            allow_update = 'allow_update' in request.POST
+
+            if current_survey:
+                current_survey.active = False
+                current_survey.closed_at = timezone.now()
+                current_survey.save()
+
+            new_survey = Survey.objects.create(title=title, description=description, active=True, allow_update=allow_update)
+            for choice_text in choices:
+                Choice.objects.create(survey=new_survey, text=choice_text.strip())
+
+        elif 'choice' in request.POST:  # Voting
+            choice_id = request.POST['choice']
+            choice = get_object_or_404(Choice, id=choice_id)
+            
+            if user_vote and current_survey.allow_update:
+                user_vote.choice = choice
+                user_vote.save()
+            elif not user_vote:
+                Vote.objects.create(choice=choice, user=request.user)
+
+        return redirect('accommodations:feedback_survey')
+
+    context = {
         'current_survey': current_survey,
         'survey_history': survey_history,
-    })
+        'user_vote': user_vote,
+    }
+    return render(request, 'accommodations/feedback_survey.html', context)
+
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def close_survey(request, survey_id):
+    if request.method == 'POST':
+        survey = get_object_or_404(Survey, id=survey_id)
+        survey.active = False
+        survey.closed_at = timezone.now()
+        survey.save()
+    return redirect('accommodations:feedback_survey')
 
 
 
-# --------------------------------------------------------------------------------------------------------
+
+
+
 @staff_member_required
 def inspection_detail(request, inspection_id):
     inspection = get_object_or_404(RoomInspectionRequest, pk=inspection_id)
     return render(request, 'accommodations/inspection_detail.html', {'inspection': inspection})
+
+
+# --------------------------------------------------------------------------------------------------------
 
 @staff_member_required
 def building_list(request):

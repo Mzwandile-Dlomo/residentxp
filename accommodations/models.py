@@ -318,7 +318,10 @@ class Survey(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     active = models.BooleanField(default=False)
+    allow_update = models.BooleanField(default=False)  # New field to allow updates
     created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+
 
     def __str__(self):
         return self.title
@@ -332,8 +335,8 @@ class Choice(models.Model):
 
 class Vote(models.Model):
     choice = models.ForeignKey(Choice, related_name='votes', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, related_name='votes', on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
 
 
 

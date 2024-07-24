@@ -19,8 +19,12 @@ urlpatterns = [
 
     path('payment-method/', views.payment_method_view, name='payment_create'),
 
+    path('inspection-requests/', views.inspection_requests_list, name='inspection_requests_list'),
 
-    path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_detail'),
+    path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_request_detail'),
+
+    path('update-inspection-request/<int:request_id>/', views.inspection_request_management, name='update_inspection_request'),
+
 
     path('activities/', views.activities, name='activities'),
 
@@ -29,5 +33,7 @@ urlpatterns = [
     path('activities/wellness/', views.wellness_activities, name='wellness_activities'),
 
     path('survey/', views.feedback_survey, name='feedback_survey'),
+    
+    path('close_survey/<int:survey_id>/', views.close_survey, name='close_survey'),
 
 ]

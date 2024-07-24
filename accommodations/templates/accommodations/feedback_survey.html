@@ -2,25 +2,69 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Feedback and Survey</h1>
-    
+
+    <!-- Admin Survey Creation Section -->
+    {% if user.is_staff or user.is_superuser %}
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4 border-b-2 border-white pb-2">Create a New Survey</h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-white font-bold mb-2" for="id_title">Title</label>
+                <input type="text" id="id_title" name="title" class="form-input mt-1 block w-full" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-white font-bold mb-2" for="id_description">Description</label>
+                <textarea id="id_description" name="description" class="form-textarea mt-1 block w-full" rows="3" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-white font-bold mb-2" for="id_choices">Choices (one per line)</label>
+                <textarea id="id_choices" name="choices" class="form-textarea mt-1 block w-full" rows="3" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="allow_update" class="form-checkbox">
+                    <span class="ml-2 text-white">Allow users to update their votes</span>
+                </label>
+            </div>
+            <button type="submit" class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300">
+                Create Survey
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
     <!-- Current Survey Section -->
     <div class="bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg shadow-md p-6 mb-8">
         <h2 class="text-2xl font-bold text-white mb-4 border-b-2 border-white pb-2">Current Survey</h2>
         {% if current_survey %}
             <h3 class="text-xl font-semibold text-white mb-2">{{ current_survey.title }}</h3>
             <p class="text-white mb-4">{{ current_survey.description }}</p>
-            <form method="post" class="space-y-4">
+            {% if user_vote and not current_survey.allow_update %}
+                <p class="text-white">You have already voted in this survey.</p>
+            {% else %}
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    {% for choice in current_survey.choices.all %}
+                        <div class="flex items-center">
+                            <input type="radio" id="choice_{{ forloop.counter }}" name="choice" value="{{ choice.id }}" class="form-radio text-yellow-500" {% if user_vote and user_vote.choice.id == choice.id %}checked{% endif %}>
+                            <label for="choice_{{ forloop.counter }}" class="ml-2 text-white">{{ choice.text }}</label>
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300">
+                        {% if user_vote %}Update Vote{% else %}Vote{% endif %}
+                    </button>
+                </form>
+            {% endif %}
+            <!-- Close Survey Button for Admin and Student Leaders -->
+            {% if user.is_staff or user.is_superuser %}
+            <form method="post" action="{% url 'accommodations:close_survey' current_survey.id %}" class="mt-4">
                 {% csrf_token %}
-                {% for choice in current_survey.choices.all %}
-                    <div class="flex items-center">
-                        <input type="radio" id="choice_{{ forloop.counter }}" name="choice" value="{{ choice.id }}" class="form-radio text-yellow-500">
-                        <label for="choice_{{ forloop.counter }}" class="ml-2 text-white">{{ choice.text }}</label>
-                    </div>
-                {% endfor %}
-                <button type="submit" class="px-4 py-2 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-300">
-                    Vote
+                <button type="submit" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-500 transition-colors duration-300">
+                    Close Survey
                 </button>
             </form>
+            {% endif %}
         {% else %}
             <p class="text-white">No active survey at the moment. Please check back later.</p>
         {% endif %}
@@ -36,6 +80,7 @@
                         <h3 class="text-xl font-semibold text-white">{{ survey.title }}</h3>
                         <p class="text-white mb-2">{{ survey.description }}</p>
                         <p class="text-gray-400"><span class="font-semibold">Created on:</span> {{ survey.created_at }}</p>
+                        <p class="text-gray-400"><span class="font-semibold">Closed on:</span> {{ survey.closed_at }}</p>
                         <ul class="mt-2 space-y-1">
                             {% for choice in survey.choices.all %}
                                 <li class="text-gray-200">{{ choice.text }} - {{ choice.votes.count }} votes</li>
