@@ -58,7 +58,7 @@
             {% endif %}
             <!-- Close Survey Button for Admin and Student Leaders -->
             {% if user.is_staff or user.is_superuser %}
-            <form method="post" action="{% url 'accommodations:close_survey' current_survey.id %}" class="mt-4">
+            <form method="post" action="{% url 'residentlife:close_survey' current_survey.id %}" class="mt-4">
                 {% csrf_token %}
                 <button type="submit" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-500 transition-colors duration-300">
                     Close Survey

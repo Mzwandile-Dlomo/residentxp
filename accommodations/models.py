@@ -89,84 +89,6 @@ class RoomInspectionReport(models.Model):
         return f"Report for {self.inspection_request.room} by {self.inspector.email}"
 
 
-# class Complaint(models.Model):
-#     requested_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='complaints')
-#     title = models.CharField(max_length=100)
-#     description = models.TextField()
-#     CATEGORY_CHOICES = (
-#         ('noise', 'Noise'),
-#         ('maintenance', 'Maintenance'),
-#         ('safety', 'Safety'),
-#         # Add more categories as needed
-#     )
-#     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
-#     STATUS_CHOICES = (
-#         ('pending', 'Pending'),
-#         ('in_progress', 'In Progress'),
-#         ('resolved', 'Resolved'),
-#     )
-#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     resolved_at = models.DateTimeField(null=True, blank=True)
-
-#     def __str__(self):
-#         return f"Complaint: {self.title} by {self.requested_by.email}"
-
-
-class VisitorLog(models.Model):
-    student = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='visitor_logs')
-    visitor_name = models.CharField(max_length=100)
-    visitor_contact = models.CharField(max_length=15)  # Consider using a validator for phone numbers
-    visit_purpose = models.CharField(max_length=255)
-    visit_date = models.DateTimeField(null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    # Use student object to get the student room
-
-    def __str__(self):
-        # return f"Visitor: {self.visitor_name} for {self.student.first_name} {self.student.last_name}"
-        room_numbers = [room.room_number for room in self.student.rooms.all()]
-        room_info = ', '.join(room_numbers) if room_numbers else 'No Room Assigned'
-        return f"Visitor: {self.visitor_name} for {self.student.first_name} {self.student.last_name} (Rooms: {room_info})"
-
-
-# class MaintenanceRequest(models.Model):
-#     requested_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='maintenance_requests')
-#     room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True, related_name='maintenance_requests')
-
-#     LOCATION_CHOICES = (
-#         ('room', 'Room'),
-#         ('laundry_room', 'Laundry Room'),
-#         ('tv_room', 'TV Room'),
-#         ('stairs', 'Stairs'),
-#         # Add more common areas as needed
-#     )
-#     location = models.CharField(max_length=50, choices=LOCATION_CHOICES, default='')
-#     description = models.TextField()
-#     URGENCY_CHOICES = (
-#         ('high', 'High'),
-#         ('medium', 'Medium'),
-#         ('low', 'Low'),
-#     )
-#     urgency = models.CharField(max_length=20, choices=URGENCY_CHOICES, default='high')
-#     STATUS_CHOICES = (
-#         ('pending', 'Pending'),
-#         ('assigned', 'Assigned'),
-#         ('completed', 'Completed'),
-#     )
-    
-#     picture = models.ImageField(upload_to='maintenance_requests', null=True, blank=True)
-#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-#     created_at = models.DateTimeField(null=True, auto_now_add=True)
-#     assigned_to = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_maintenance_requests')
-#     completed_at = models.DateTimeField(null=True, blank=True)
-
-#     def __str__(self):
-#         if self.location == 'room':
-#             return f"Maintenance Request: {self.description} in {self.room} by {self.requested_by.email}"
-#         else:
-#             return f"Maintenance Request: {self.description} in {self.location} by {self.requested_by.email}"
-
 
 class LeaseAgreement(models.Model):
     SEMESTER_CHOICES = [
@@ -311,34 +233,6 @@ class StudentAllocation(models.Model):
 
     def __str__(self):
         return f"{self.student.email} - {self.room.room_number}"
-
-
-
-class Survey(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    active = models.BooleanField(default=False)
-    allow_update = models.BooleanField(default=False)  # New field to allow updates
-    created_at = models.DateTimeField(auto_now_add=True)
-    closed_at = models.DateTimeField(null=True, blank=True)
-
-
-    def __str__(self):
-        return self.title
-
-class Choice(models.Model):
-    survey = models.ForeignKey(Survey, related_name='choices', on_delete=models.CASCADE)
-    text = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.text
-
-class Vote(models.Model):
-    choice = models.ForeignKey(Choice, related_name='votes', on_delete=models.CASCADE)
-    user = models.ForeignKey(CustomUser, related_name='votes', on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
 
 
 

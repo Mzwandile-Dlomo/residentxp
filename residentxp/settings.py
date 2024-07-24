@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'core',
     'accommodations',
     'complains_maintenance',
+    'residentlife',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'

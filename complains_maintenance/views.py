@@ -29,7 +29,7 @@ def complaint_view(request):
         form = ComplaintForm()
 
     context = {'form': form, 'complaints': complaints}
-    return render(request, 'accommodations/complaint.html', context)
+    return render(request, 'complains_maintenance/complain.html', context)
 
 def maintainance_request_view(request):
     if request.method == 'POST':
@@ -45,4 +45,4 @@ def maintainance_request_view(request):
             messages.error(request, "Please fill out the maintenance request form below.")
     else:
         form = MaintenanceRequestForm()
-    return render(request, 'accommodations/maintainance.html', {'form': form})
+    return render(request, 'complains_maintenance/maintainance.html', {'form': form})
