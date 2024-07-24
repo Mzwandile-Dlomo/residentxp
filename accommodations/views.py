@@ -11,7 +11,7 @@ from django.utils import timezone
 
 # Create your views here.
 @login_required
-def room_detail(request, room_id):
+def room_view(request, room_id):
     user = request.user
     room = get_object_or_404(Room, pk=room_id)
     inspections_object = room.inspection_requests.all()
@@ -34,7 +34,7 @@ def room_detail(request, room_id):
                 room_occupants.append(occupant)
 
     
-    return render(request, 'accommodations/room_detail.html', {'room': room, 'inspections': inspections, 'room_occupants': room_occupants})
+    return render(request, 'accommodations/room.html', {'room': room, 'inspections': inspections, 'room_occupants': room_occupants})
 
 
 def request_inspection(request, room_id):
@@ -51,10 +51,7 @@ def request_inspection(request, room_id):
             inspection_date=inspection_date
         )
         inspection_request.save()
-
-        return redirect('accommodations:room_detail', room_id=room.id)
-    return render(request, 'accommodations/request_inspection.html', {'room': room})
-
+        return redirect('accommodations:room_view', room_id=room.id)
 
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def inspection_requests_list(request):
@@ -122,21 +119,8 @@ def payment_method_view(request):
 
 
 
-# --------------------------------------------------------------------------------------------------------
+# @staff_member_required
+# def inspection_detail(request, inspection_id):
+#     inspection = get_object_or_404(RoomInspectionRequest, pk=inspection_id)
+#     return render(request, 'accommodations/inspection_detail.html', {'inspection': inspection})
 
-@staff_member_required
-def inspection_detail(request, inspection_id):
-    inspection = get_object_or_404(RoomInspectionRequest, pk=inspection_id)
-    return render(request, 'accommodations/inspection_detail.html', {'inspection': inspection})
-
-
-@staff_member_required
-def building_list(request):
-    buildings = Building.objects.all()
-    return render(request, 'accommodations/building_list.html', {'buildings': buildings})
-
-@staff_member_required
-def building_detail(request, building_id):
-    building = get_object_or_404(Building, pk=building_id)
-    rooms = building.room_set.all()
-    return render(request, 'accommodations/building_detail.html', {'building': building, 'rooms': rooms})
