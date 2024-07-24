@@ -15,8 +15,6 @@ urlpatterns = [
     path('account/lease-agreement/create/', views.lease_agreement_view, name='lease_agreement'),
 
 
-
-
     path('account/update/', views.UserUpdateView.as_view(), name='user_update'),
     path('account/rental-agreement/<int:pk>/update/', views.RentalAgreementUpdateView.as_view(), name='rental_agreement_update'),
     path('account/rental-agreement/create/', views.RentalAgreementCreateView.as_view(), name='rental_agreement'),

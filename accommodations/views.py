@@ -1,8 +1,8 @@
 # accommodations/views.py
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Building, Room, RoomInspectionRequest, RoomInspectionReport, MaintenanceRequest, RoomReservation, Complaint, Survey, Choice, Vote
+from .models import Building, Room, RoomInspectionRequest, RoomInspectionReport, RoomReservation, Survey, Choice, Vote
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import RoomReservationForm, ComplaintForm, VisitorLogForm, MaintenanceRequestForm, PaymentMethodForm, UpdateInspectionRequestForm
+from .forms import RoomReservationForm, VisitorLogForm, PaymentMethodForm, InspectionRequestFormManagement
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
@@ -61,12 +61,13 @@ def inspection_requests_list(request):
     inspection_requests = RoomInspectionRequest.objects.all().order_by('-requested_at')
     return render(request, 'accommodations/inspection_requests.html', {'inspection_requests': inspection_requests})
 
+
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def inspection_request_management(request, request_id):
     inspection_request = get_object_or_404(RoomInspectionRequest, pk=request_id)
     
     if request.method == 'POST':
-        form = UpdateInspectionRequestForm(request.POST, instance=inspection_request)
+        form = InspectionRequestFormManagement(request.POST, instance=inspection_request)
         if form.is_valid():
             form.save()
             
@@ -78,34 +79,12 @@ def inspection_request_management(request, request_id):
                     report_details=request.POST.get('report_details', '')
                 )
             
-            return redirect('accommodations:inspection_requests')
+            return redirect('accommodations:inspection_requests_list')
     else:
-        form = UpdateInspectionRequestForm(instance=inspection_request)
+        form = InspectionRequestFormManagement(instance=inspection_request)
     
     return render(request, 'accommodations/inspection_request_management.html', {'form': form, 'inspection_request': inspection_request})
 
-# @user_passes_test(lambda u: u.is_staff or u.is_superuser)
-# def update_inspection_request(request, request_id):
-#     inspection_request = get_object_or_404(RoomInspectionRequest, pk=request_id)
-    
-#     if request.method == 'POST':
-#         form = UpdateInspectionRequestForm(request.POST, instance=inspection_request)
-#         if form.is_valid():
-#             form.save()
-            
-#             # Create an inspection report if marking as done
-#             if inspection_request.status == 'Done' and not RoomInspectionReport.objects.filter(inspection_request=inspection_request).exists():
-#                 RoomInspectionReport.objects.create(
-#                     inspection_request=inspection_request,
-#                     inspector=request.user,
-#                     report_details=request.POST.get('report_details', '')
-#                 )
-            
-#             return redirect('accommodations:inspection_requests')
-#     else:
-#         form = UpdateInspectionRequestForm(instance=inspection_request)
-    
-#     return render(request, 'accommodations/update_inspection_request.html', {'form': form, 'inspection_request': inspection_request})
 
 @login_required
 def room_reservation_view(request):
@@ -126,29 +105,29 @@ def room_reservation_view(request):
     return render(request, 'accommodations/room_reservation.html', context)
 
 
-@login_required
-def complaint_view(request):
+# @login_required
+# def complaint_view(request):
 
-    user_complaints = Complaint.objects.filter(requested_by=request.user)
-    complaints = []
+#     user_complaints = Complaint.objects.filter(requested_by=request.user)
+#     complaints = []
 
-    for complaint in user_complaints:
-        complaints.append(complaint)
+#     for complaint in user_complaints:
+#         complaints.append(complaint)
     
 
-    if request.method == 'POST':
-        form = ComplaintForm(request.POST)
-        if form.is_valid():
-            complaint = form.save(commit=False)
-            complaint.requested_by = request.user
-            complaint.save()
-            messages.success(request, 'Complaint submitted!')
-            return redirect('core:home')
-    else:
-        form = ComplaintForm()
+#     if request.method == 'POST':
+#         form = ComplaintForm(request.POST)
+#         if form.is_valid():
+#             complaint = form.save(commit=False)
+#             complaint.requested_by = request.user
+#             complaint.save()
+#             messages.success(request, 'Complaint submitted!')
+#             return redirect('core:home')
+#     else:
+#         form = ComplaintForm()
 
-    context = {'form': form, 'complaints': complaints}
-    return render(request, 'accommodations/complaint.html', context)
+#     context = {'form': form, 'complaints': complaints}
+#     return render(request, 'accommodations/complaint.html', context)
 
 
 @login_required
@@ -178,21 +157,21 @@ def log_visitor_view(request):
     return render(request, 'accommodations/visitor.html', context)
 
 
-def maintainance_request_view(request):
-    if request.method == 'POST':
-        form = MaintenanceRequestForm(request.POST, request.FILES)
+# def maintainance_request_view(request):
+#     if request.method == 'POST':
+#         form = MaintenanceRequestForm(request.POST, request.FILES)
 
-        if form.is_valid():
-            maintenance_request = form.save(commit=False)
-            maintenance_request.requested_by = request.user
-            maintenance_request.save()
-            messages.success(request, "Maintainance submitted!")
-            return redirect('core:home')
-        else:
-            messages.error(request, "Please fill out the maintenance request form below.")
-    else:
-        form = MaintenanceRequestForm()
-    return render(request, 'accommodations/maintainance.html', {'form': form})
+#         if form.is_valid():
+#             maintenance_request = form.save(commit=False)
+#             maintenance_request.requested_by = request.user
+#             maintenance_request.save()
+#             messages.success(request, "Maintainance submitted!")
+#             return redirect('core:home')
+#         else:
+#             messages.error(request, "Please fill out the maintenance request form below.")
+#     else:
+#         form = MaintenanceRequestForm()
+#     return render(request, 'accommodations/maintainance.html', {'form': form})
 
 
 @login_required
@@ -285,13 +264,14 @@ def close_survey(request, survey_id):
 
 
 
+
+# --------------------------------------------------------------------------------------------------------
+
 @staff_member_required
 def inspection_detail(request, inspection_id):
     inspection = get_object_or_404(RoomInspectionRequest, pk=inspection_id)
     return render(request, 'accommodations/inspection_detail.html', {'inspection': inspection})
 
-
-# --------------------------------------------------------------------------------------------------------
 
 @staff_member_required
 def building_list(request):

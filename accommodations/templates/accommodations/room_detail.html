@@ -55,14 +55,15 @@
                     {% for inspection in inspections %}
                     <li class="bg-white bg-opacity-10 rounded-md p-4 cursor-pointer hover:bg-opacity-20 transition duration-300" onclick="toggleInspectionDetails(this)">
                         <div class="flex items-center justify-between">
-                            <span class="font-semibold text-white">Date: {{ inspection.requested_at }}</span>
+                            <span class="font-semibold text-white">Requested by: {{ inspection.requested_by.first_name }} {{ inspection.requested_by.last_name }}</span>
                             <svg class="h-5 w-5 text-gray-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                         <div class="inspection-details hidden mt-4 pl-4">
                             <p class="font-semibold text-white">Inspection date: {{ inspection.inspection_date }}</p>
-                            <p class="text-gray-400">Notes: {{ inspection.comments }}</p>
+                            <p class="text-gray-400">Status: {{ inspection.status }}</p>
+                            <p class="text-gray-400">Comments: {{ inspection.comments }}</p>
                         </div>
                     </li>
                     {% empty %}

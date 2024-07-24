@@ -42,10 +42,9 @@ INSTALLED_APPS = [
 
     # INSTALLED
     'accounts',
-    'complaints',
     'core',
     'accommodations',
-    'students'
+    'complains_maintenance',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'

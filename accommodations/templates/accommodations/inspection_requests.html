@@ -28,7 +28,7 @@
                                 <td class="py-4 px-6 border-b border-gray-200 text-gray-200">{{ request.get_type_display }}</td>
                                 <td class="py-4 px-6 border-b border-gray-200 text-gray-200">{{ request.status }}</td>
                                 <td class="py-4 px-6 border-b border-gray-200">
-                                    <a href="{% url 'accommodations:update_inspection_request' request.id %}" class="bg-gray-700 text-white font-semibold py-2 px-4 rounded hover:bg-gray-600 transition duration-300">Update</a>
+                                    <a href="{% url 'accommodations:update_inspection_request' request.id %}" class="bg-gray-700 text-white font-semibold py-2 px-4 rounded hover:bg-gray-600 transition duration-300">Inspect</a>
                                 </td>
                             </tr>
                         {% endfor %}

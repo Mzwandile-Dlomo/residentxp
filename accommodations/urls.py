@@ -11,29 +11,27 @@ urlpatterns = [
     path('rooms/room/<int:room_id>/request_inspection/', views.request_inspection, name='request_inspection'),
     path('room-reservation/', views.room_reservation_view, name='room_reservation'),
 
-    path('complaint/', views.complaint_view, name='complaint'),
 
     path('log-visitor/', views.log_visitor_view, name='visitor'),
 
-    path('maintainance-request/new/', views.maintainance_request_view, name='maintainance'),
 
     path('payment-method/', views.payment_method_view, name='payment_create'),
+
+
 
     path('inspection-requests/', views.inspection_requests_list, name='inspection_requests_list'),
 
     path('inspections/<int:inspection_id>/', views.inspection_detail, name='inspection_request_detail'),
 
-    path('update-inspection-request/<int:request_id>/', views.inspection_request_management, name='update_inspection_request'),
+    path('inspection-request-management/<int:request_id>/', views.inspection_request_management, name='inspection_request_management'),
 
 
     path('activities/', views.activities, name='activities'),
-
     path('activities/social/', views.social_activities, name='social_activities'),
     path('activities/educational/', views.educational_activities, name='educational_activities'),
     path('activities/wellness/', views.wellness_activities, name='wellness_activities'),
 
     path('survey/', views.feedback_survey, name='feedback_survey'),
-    
     path('close_survey/<int:survey_id>/', views.close_survey, name='close_survey'),
 
 ]

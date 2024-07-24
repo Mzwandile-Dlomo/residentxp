@@ -1,6 +1,6 @@
 import base64
 from django import forms
-from .models import Room, RoomInspectionRequest, MaintenanceRequest, RoomReservation, Complaint, VisitorLog, LeaseAgreement, Payment, Survey, Choice
+from .models import Room, RoomInspectionRequest, RoomReservation, VisitorLog, LeaseAgreement, Payment, Survey, Choice
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 import re
@@ -15,53 +15,16 @@ class InspectionRequestForm(forms.ModelForm):
         }
 
 
-class UpdateInspectionRequestForm(forms.ModelForm):
+class InspectionRequestFormManagement(forms.ModelForm):
     class Meta:
         model = RoomInspectionRequest
-        fields = ['status', 'completed']
+        fields = ['status']
         widgets = {
             'status': forms.Select(choices=[
-                ('Pending', 'Pending'),
-                ('In Progress', 'In Progress'),
-                ('Done', 'Done'),
                 ('Approved', 'Approved'),
                 ('Rejected', 'Rejected'),
             ])
         }
-
-
-class MaintenanceRequestForm(forms.ModelForm):
-    class Meta:
-        model = MaintenanceRequest
-        fields = ('location','room', 'description', 'urgency', 'picture')
-
-    def __init__(self, *args, **kwargs):
-        super(MaintenanceRequestForm, self).__init__(*args, **kwargs)
-        # Dynamically populate the room field based on the currently logged-in user
-        user = kwargs.get('user')
-        if user:
-            self.fields['room'].queryset = Room.objects.filter(student=user)
-
-    def clean(self):
-        cleaned_data = super(MaintenanceRequestForm, self).clean()
-        location = cleaned_data.get('location')
-        room = cleaned_data.get('room')
-
-        
-        # Ensure either room or location is provided, but not both
-        if not room and location == 'room':
-            raise forms.ValidationError("Please specify the room for the maintainance.")
-        elif not room and not location:
-            raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request1.")
-        elif location != 'room' and room:
-            raise forms.ValidationError("Please specify either the room or the common area location for the maintenance request.")
-        return cleaned_data
-
-
-class ComplaintForm(forms.ModelForm):
-    class Meta:
-        model = Complaint
-        fields = ['title', 'description', 'category']
 
 
 class RoomReservationForm(forms.ModelForm):
